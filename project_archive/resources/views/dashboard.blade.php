@@ -7,7 +7,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
             <!-- Search Form -->
             <form method="GET" action="{{ route('dashboard') }}" class="mb-6">
                 <input type="text" name="search" value="{{ request('search') }}"
@@ -22,17 +21,26 @@
                     <h3 class="text-lg font-semibold mb-4">{{ $department }}</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($projects as $project)
-                            <div class="bg-gray-100 p-4 rounded-lg shadow">
+                            <div class="bg-white border rounded-lg shadow-lg hover:shadow-xl transition-shadow">
                                 <img src="{{ asset('storage/' . $project->banner_image) }}" 
-                                    alt="Project Image" class="w-full h-40 object-cover rounded-md mb-3">
+                                    alt="Project Banner" class="w-full h-48 object-cover rounded-t-lg">
                                 
-                                <h4 class="font-semibold">{{ $project->project_name }}</h4>
-                                <p class="text-gray-700 text-sm">Submitted by: {{ $project->email }}</p>
+                                <div class="p-4">
+                                    <h4 class="font-bold text-xl mb-2">{{ $project->project_name }}</h4>
+                                    
+                                    <div class="mb-3 text-gray-600">
+                                        <p><span class="font-semibold">Authors:</span> {{ $project->members }}</p>
+                                        <p><span class="font-semibold">Department:</span> {{ $project->department }}</p>
+                                        <p><span class="font-semibold">Published:</span> 
+                                            {{ $project->created_at->format('F d, Y') }}
+                                        </p>
+                                    </div>
 
-                                <button onclick="openModal('{{ asset('storage/' . $project->file) }}')" 
-                                    class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                    View Research
-                                </button>
+                                    <a href="{{ route('research.show', $project->id) }}" 
+                                        class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                                        View Details
+                                    </a>
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -40,27 +48,4 @@
             @endforeach
         </div>
     </div>
-
-    <!-- Modal -->
-    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Research Document</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-800">&times;</button>
-            </div>
-            <iframe id="pdfViewer" class="w-full h-96"></iframe>
-        </div>
-    </div>
-
-    <script>
-        function openModal(pdfUrl) {
-            document.getElementById('pdfViewer').src = pdfUrl;
-            document.getElementById('pdfModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('pdfModal').classList.add('hidden');
-            document.getElementById('pdfViewer').src = "";
-        }
-    </script>
 </x-app-layout>

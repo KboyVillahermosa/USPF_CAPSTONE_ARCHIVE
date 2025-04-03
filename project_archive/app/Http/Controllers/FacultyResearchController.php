@@ -2,39 +2,63 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FacultyResearch;
 use Illuminate\Http\Request;
 use App\Models\ResearchRepository;
 
-class ResearchRepositoryController extends Controller {
-    
+class FacultyResearchController extends Controller 
+{
+    public function create()
+    {
+        return view('upload_faculty');
+    }
+
     // ✅ Store new research submission
-    public function store(Request $request) {
+    public function store(Request $request) 
+    {
         $validated = $request->validate([
             'project_name' => 'required|string|max:255',
             'members' => 'required|string',
             'department' => 'required|string',
-            'curriculum' => 'required|string',  // Add this line
             'abstract' => 'required|string',
             'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'file' => 'required|mimes:pdf,doc,docx|max:10240',
         ]);
 
-        if ($request->hasFile('banner_image')) {
-            $validated['banner_image'] = $request->file('banner_image')->store('banners', 'public');
+        try {
+            if ($request->hasFile('banner_image')) {
+                $validated['banner_image'] = $request->file('banner_image')->store('faculty/banners', 'public');
+            }
+
+            if ($request->hasFile('file')) {
+                $validated['file'] = $request->file('file')->store('faculty/files', 'public');
+            }
+
+            $validated['user_id'] = auth()->id();
+            $validated['approved'] = false;
+
+            FacultyResearch::create($validated);
+
+            return redirect()
+                ->route('research.history')
+                ->with('success', 'Faculty research uploaded successfully.');
+
+        } catch (\Exception $e) {
+            \Log::error('Upload failed: ' . $e->getMessage());
+            
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Upload failed. Please try again.');
         }
-
-        $validated['file'] = $request->file('file')->store('files', 'public');
-        $validated['approved'] = false;
-        $validated['user_id'] = auth()->id(); // ✅ Link the research project to the user
-
-        ResearchRepository::create($validated);
-
-        return redirect()->back()->with('success', 'Research uploaded successfully. Awaiting admin approval.');
     }
 
     // ✅ User's research history
-    public function history() {
-        $userProjects = ResearchRepository::where('user_id', auth()->id())->orderBy('created_at', 'desc')->get();
+    public function history()
+    {
+        $userProjects = FacultyResearch::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
         
         return view('history', compact('userProjects'));
     }
@@ -67,25 +91,13 @@ class ResearchRepositoryController extends Controller {
     
     public function show($id)
     {
-        try {
-            $project = ResearchRepository::findOrFail($id);
-            
-            // Get related studies based on department
-            $relatedStudies = ResearchRepository::where('id', '!=', $id)
-                ->where('department', $project->department)
-                ->where('approved', true)
-                ->limit(4)
-                ->get();
-
-            // Get file URL for PDF viewer
-            $pdfUrl = asset('storage/' . $project->file);
-
-            return view('research.show', compact('project', 'relatedStudies', 'pdfUrl'));
-
-        } catch (\Exception $e) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Research not found.');
+        $project = ResearchRepository::find($id);
+    
+        if (!$project) {
+            abort(404, 'Project not found');
         }
+    
+        return view('research.show', compact('project'));
     }
     
 
@@ -97,7 +109,6 @@ class ResearchRepositoryController extends Controller {
             'project_name' => $request->project_name,
             'members' => $request->members,
             'department' => $request->department,
-            'curriculum' => $request->curriculumn,
             'abstract' => $request->abstract,
         ]);
 

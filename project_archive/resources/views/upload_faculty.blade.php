@@ -1,14 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Upload Research Project
+            Faculty Research Upload
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-lg rounded-lg p-8">
-                <form action="{{ route('research.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('research.faculty.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <!-- Project Name -->
@@ -20,7 +20,7 @@
 
                     <!-- Members -->
                     <div class="mb-6">
-                        <label class="block text-gray-800 font-semibold mb-2">Members</label>
+                        <label class="block text-gray-800 font-semibold mb-2">Co-Researchers</label>
                         <input type="text" name="members"
                             class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring focus:ring-blue-200" required>
                     </div>
@@ -30,43 +30,21 @@
                         <label class="block text-gray-800 font-semibold mb-2">Department</label>
                         <select name="department"
                             class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring focus:ring-blue-200" required>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Computer Science">Computer Science</option>
-                            <option value="Business">Business</option>
-                            <option value="Education">Education</option>
-                            <option value="Medicine">Medicine</option>
+                            <option value="Engineering Department">Engineering Department</option>
+                            <option value="Computer Studies Department">Computer Studies Department</option>
+                            <option value="Business Department">Business Department</option>
+                            <option value="Education Department">Education Department</option>
+                            <option value="Medical Department">Medical Department</option>
                         </select>
                     </div>
-
-                    <!-- Curriculum -->
-                    <div class="mb-6">
-                        <label class="block text-gray-800 font-semibold mb-2">Program</label>
-                        <select name="curriculum"
-                            class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring focus:ring-blue-200" required>
-                            <option value="">Select Program</option>
-                            <option value="BSIT">Bachelor of Science in Information Technology</option>
-                            <option value="BSCS">Bachelor of Science in Computer Science</option>
-                            <option value="BSIS">Bachelor of Science in Information Systems</option>
-                            <option value="BSCE">Bachelor of Science in Civil Engineering</option>
-                            <option value="BSEE">Bachelor of Science in Electrical Engineering</option>
-                            <option value="BSME">Bachelor of Science in Mechanical Engineering</option>
-                            <option value="BSBA">Bachelor of Science in Business Administration</option>
-                            <option value="BSA">Bachelor of Science in Accountancy</option>
-                            <option value="BSMA">Bachelor of Science in Management Accounting</option>
-                            <option value="BEED">Bachelor of Elementary Education</option>
-                            <option value="BSED">Bachelor of Secondary Education</option>
-                            <option value="BTVTEd">Bachelor of Technical-Vocational Teacher Education</option>
-                        </select>
-                    </div>
-
 
                     <!-- Abstract with Text Editor -->
                     <div class="mb-6">
                         <label class="block text-gray-800 font-semibold mb-2">Abstract</label>
                         <input id="abstract" type="hidden" name="abstract">
-                        <trix-editor input="abstract"
-                            class="w-full border-gray-300 rounded-lg focus:ring focus:ring-blue-200"></trix-editor>
+                        <trix-editor input="abstract" class="w-full border-gray-300 rounded-lg focus:ring focus:ring-blue-200"></trix-editor>
                     </div>
+
                     <!-- Banner Image Upload -->
                     <div class="mb-6">
                         <label class="block text-gray-800 font-semibold mb-2">Banner Image</label>
@@ -103,12 +81,12 @@
                     <div class="flex items-center justify-between">
                         <button type="submit"
                             class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition">
-                            Submit
+                            Submit Research
                         </button>
 
                         <a href="{{ route('research.history') }}"
                             class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition">
-                            My Archives
+                            Research Archives
                         </a>
                     </div>
                 </form>
@@ -121,14 +99,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.css">
 
     <script>
-        // Initialize Quill Text Editor
-        document.getElementById('fileInput').addEventListener('change', function (event) {
+        document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 document.getElementById('fileName').textContent = `Selected File: ${file.name}`;
+                document.getElementById('fileName').classList.remove('hidden');
             }
         });
-
 
         function setupDragAndDrop(dropAreaId, inputId, fileNameId, previewId = null, previewContainerId = null) {
             const dropArea = document.getElementById(dropAreaId);

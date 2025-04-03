@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ResearchRepositoryController;
+use App\Http\Controllers\FacultyResearchController;
 
 
 Route::get('/', function () {
@@ -17,14 +18,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/upload/faculty', [FacultyResearchController::class, 'create'])->name('upload.faculty');
+    Route::post('/research/faculty', [FacultyResearchController::class, 'store'])->name('research.faculty.store');
+    Route::get('/research/history', [FacultyResearchController::class, 'history'])->name('research.history');
+
+    // Upload routes
+    Route::get('/upload', function () {
+        return view('upload');
+    })->name('upload');
+
+    // Faculty Research Routes
+    Route::get('/faculty/research/history', [FacultyResearchController::class, 'history'])
+        ->name('research.history');
+    Route::get('/faculty/research/{id}', [FacultyResearchController::class, 'show'])
+        ->name('faculty.research.show');
+    Route::get('/faculty/research/{id}/edit', [FacultyResearchController::class, 'edit'])
+        ->name('faculty.research.edit');
+    Route::put('/faculty/research/{id}', [FacultyResearchController::class, 'update'])
+        ->name('faculty.research.update');
+
+    Route::get('/research/{id}', [FacultyResearchController::class, 'show'])->name('research.show');
 });
-
-
-
-// Upload form view
-Route::get('/upload', function () {
-    return view('upload');
-})->name('upload');
 
 
 // Store uploaded research
