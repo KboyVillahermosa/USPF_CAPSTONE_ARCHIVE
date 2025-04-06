@@ -74,5 +74,6 @@ Route::get('/department/{department}', [DepartmentController::class, 'show'])->n
 
 // Research Routes
 Route::get('/research/{id}', [ResearchController::class, 'show'])->name('research.show');
+Route::post('/research/{id}/download', [ResearchController::class, 'download'])->name('research.download');
 
 require __DIR__.'/auth.php';

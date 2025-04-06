@@ -3,6 +3,14 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 @if($project)
+                    <!-- Download Button at Top -->
+                    <div class="mb-6 flex justify-end">
+                        <button data-download-trigger
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                            Download Research Paper
+                        </button>
+                    </div>
+
                     <div class="mb-6">
                         <h1 class="text-3xl font-bold mb-2">{{ $project->project_name }}</h1>
                         <div class="grid grid-cols-2 gap-4 mb-6">
@@ -49,8 +57,12 @@
                         <!-- PDF Viewer -->
                         <div class="mb-8">
                             <h2 class="text-xl font-semibold mb-3">Research Document</h2>
-                            <iframe src="{{ asset('storage/' . $project->file) }}"
-                                class="w-full h-screen rounded-lg border"></iframe>
+                            <div class="w-full h-[800px] border rounded-lg">
+                                <iframe src="{{ asset('storage/' . $project->file) }}#toolbar=0" 
+                                    class="w-full h-full rounded-lg"
+                                    type="application/pdf">
+                                </iframe>
+                            </div>
                         </div>
 
                         <!-- Citation Formats -->
@@ -110,4 +122,91 @@
             </div>
         </div>
     </div>
+
+    <!-- Download Purpose Modal -->
+    <div id="downloadModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h3 class="text-xl font-semibold mb-4">Download Purpose</h3>
+            <p class="text-gray-600 mb-4">
+                Before proceeding with the download, please provide the purpose of your request. This helps us understand how the document will be used and ensures responsible access to the content.
+            </p>
+
+            <form action="{{ route('research.download', $project) }}" method="POST" id="downloadForm">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Select Purpose:</label>
+                    <select name="purpose" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Please select a purpose...</option>
+                        <option value="academic_research">Academic Research</option>
+                        <option value="thesis_reference">Thesis/Dissertation Reference</option>
+                        <option value="literature_review">Literature Review</option>
+                        <option value="course_requirement">Course Requirement</option>
+                        <option value="teaching_material">Teaching Material</option>
+                        <option value="personal_study">Personal Study</option>
+                        <option value="industry_research">Industry/Professional Research</option>
+                        <option value="other">Other (Please specify)</option>
+                    </select>
+                </div>
+
+                <div id="otherPurposeField" class="mb-4 hidden">
+                    <label class="block text-gray-700 font-medium mb-2">Please specify:</label>
+                    <textarea name="other_purpose" rows="2" 
+                        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    ></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="cancelDownload" 
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        Proceed to Download
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const downloadModal = document.getElementById('downloadModal');
+        const downloadForm = document.getElementById('downloadForm');
+        const purposeSelect = downloadForm.querySelector('select[name="purpose"]');
+        const otherPurposeField = document.getElementById('otherPurposeField');
+
+        // Show modal when download button is clicked
+        document.querySelector('[data-download-trigger]').addEventListener('click', () => {
+            downloadModal.classList.remove('hidden');
+            downloadModal.classList.add('flex');
+        });
+
+        // Hide modal when cancel is clicked
+        document.getElementById('cancelDownload').addEventListener('click', () => {
+            downloadModal.classList.remove('flex');
+            downloadModal.classList.add('hidden');
+        });
+
+        // Show/hide other purpose field
+        purposeSelect.addEventListener('change', () => {
+            otherPurposeField.classList.toggle('hidden', purposeSelect.value !== 'other');
+        });
+
+        // Validate form before submission
+        downloadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (!purposeSelect.value) {
+                alert('Please select a purpose for downloading.');
+                return;
+            }
+
+            if (purposeSelect.value === 'other' && !downloadForm.other_purpose.value.trim()) {
+                alert('Please specify your purpose for downloading.');
+                return;
+            }
+
+            downloadForm.submit();
+        });
+    </script>
 </x-app-layout>
