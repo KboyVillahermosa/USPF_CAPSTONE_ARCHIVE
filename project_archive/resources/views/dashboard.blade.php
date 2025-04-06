@@ -1,34 +1,45 @@
 <x-app-layout>
     <!-- Header Section -->
-    <div class="bg-gradient-to-r from-blue-800 to-blue-600 text-white py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl font-bold mb-4">
-                Preserving Knowledge, Empowering Research
-            </h1>
-            <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-                Discover, Access, and Contribute to the University of Southern Philippines Foundation's digital archive of research papers.
-            </p>
-            
-            <!-- Search Form -->
-            <div class="max-w-2xl mx-auto">
-                <form method="GET" action="{{ route('dashboard') }}" class="relative">
-                    <div class="relative">
-                        <input type="text" 
-                               name="search" 
-                               id="search-input"
-                               value="{{ request('search') }}"
-                               placeholder="Search research papers..." 
-                               class="w-full px-6 py-4 rounded-lg shadow-lg text-gray-800 text-lg border-0 focus:ring-2 focus:ring-blue-400"
-                               autocomplete="off">
-                        <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition">
-                            <i class="fas fa-search mr-2"></i>
-                            Search
-                        </button>
-                    </div>
-                    <div id="search-recommendations" 
-                         class="absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-2 hidden text-left">
-                    </div>
-                </form>
+    <div class="relative h-[100vh] bg-gradient-to-r from-blue-800/100 to-blue-600/80">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-black/60"></div> <!-- Dark overlay -->
+            <img src="{{ asset('images/image.jpg') }}" 
+                 alt="Library Background" 
+                 class="w-full h-full object-cover">
+        </div>
+        
+        <!-- Content Overlay -->
+        <div class="relative z-10 h-full flex items-center">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-8xl font-bold mb-4 text-white">
+                    Preserving Knowledge, Empowering Research
+                </h1>
+                <p class="text-xl text-white mb-8 max-w-3xl mx-auto">
+                    Discover, Access, and Contribute to the University of Southern Philippines Foundation's digital archive of research papers.
+                </p>
+                
+                <!-- Search Form -->
+                <div class="max-w-2xl mx-auto">
+                    <form method="GET" action="{{ route('dashboard') }}" class="relative">
+                        <div class="relative">
+                            <input type="text" 
+                                   name="search" 
+                                   id="search-input"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search research papers..." 
+                                   class="w-full px-6 py-4 rounded-lg shadow-lg text-gray-800 text-lg border-0 focus:ring-2 focus:ring-blue-400"
+                                   autocomplete="off">
+                            <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition">
+                                <i class="fas fa-search mr-2"></i>
+                                Search
+                            </button>
+                        </div>
+                        <div id="search-recommendations" 
+                             class="absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-2 hidden text-left">
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

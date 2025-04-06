@@ -54,14 +54,89 @@
                             </div>
                         @endif
 
-                        <!-- PDF Viewer -->
+                        <!-- PDF Viewer Section -->
                         <div class="mb-8">
-                            <h2 class="text-xl font-semibold mb-3">Research Document</h2>
-                            <div class="w-full h-[800px] border rounded-lg">
-                                <iframe src="{{ asset('storage/' . $project->file) }}#toolbar=0" 
-                                    class="w-full h-full rounded-lg"
-                                    type="application/pdf">
-                                </iframe>
+                            <h2 class="text-2xl font-semibold mb-4">Research Document</h2>
+                            <div class="bg-white shadow-lg rounded-lg border border-gray-200">
+                                <!-- Advanced Toolbar -->
+                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                    <div class="flex items-center justify-between">
+                                        <!-- Left Controls -->
+                                        <div class="flex items-center space-x-6">
+                                            <!-- Zoom Controls -->
+                                            <div class="flex items-center space-x-2">
+                                                <button onclick="zoomOut()" class="toolbar-button" title="Zoom Out">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                                    </svg>
+                                                </button>
+                                                <span id="zoomLevel" class="text-sm font-medium text-gray-700 w-16 text-center">100%</span>
+                                                <button onclick="zoomIn()" class="toolbar-button" title="Zoom In">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            <!-- Page Controls -->
+                                            <div class="flex items-center space-x-3">
+                                                <button onclick="previousPage()" class="toolbar-button" title="Previous Page">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                                    </svg>
+                                                </button>
+                                                <div class="text-sm text-gray-700">
+                                                    Page <span id="currentPage" class="font-medium">1</span> of 
+                                                    <span id="totalPages" class="font-medium">-</span>
+                                                </div>
+                                                <button onclick="nextPage()" class="toolbar-button" title="Next Page">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Controls -->
+                                        <div class="flex items-center space-x-4">
+                                            <button onclick="resetZoom()" class="toolbar-button-secondary" title="Reset View">
+                                                Reset View
+                                            </button>
+                                            <button onclick="toggleFullscreen()" class="toolbar-button" title="Toggle Fullscreen">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                        d="M4 8V4m0 0h4M4 4l5 5m11-5V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- PDF Viewer Container -->
+                                <div id="pdfContainer" class="relative">
+                                    <div class="w-full h-[800px] bg-gray-100">
+                                        <iframe id="pdfViewer"
+                                            src="{{ asset('storage/' . $project->file) }}#toolbar=0"
+                                            class="w-full h-full transition-transform duration-200 ease-in-out"
+                                            type="application/pdf"
+                                            onload="this.contentWindow.focus()">
+                                        </iframe>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+                                    <div class="flex items-center space-x-2 text-gray-600">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <span class="text-sm">Research Paper (PDF)</span>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        Last modified: {{ $project->updated_at->format('M d, Y') }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -244,5 +319,101 @@
 
             downloadForm.submit();
         });
+
+        // PDF Viewer Controls
+        let currentZoom = 100;
+        const pdfViewer = document.getElementById('pdfViewer');
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+
+        function zoomIn() {
+            if (currentZoom < 200) {
+                currentZoom += 25;
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > 50) {
+                currentZoom -= 25;
+                updateZoom();
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 100;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            const viewer = document.getElementById('pdfViewer');
+            viewer.style.transform = `scale(${currentZoom/100})`;
+            viewer.style.transformOrigin = 'center top';
+            zoomLevelDisplay.textContent = `${currentZoom}%`;
+        }
+
+        function nextPage() {
+            pdfViewer.contentWindow.postMessage({ type: 'nextPage' }, '*');
+        }
+
+        function previousPage() {
+            pdfViewer.contentWindow.postMessage({ type: 'previousPage' }, '*');
+        }
+
+        // Add smooth transitions for zoom
+        function smoothZoom(targetZoom) {
+            const steps = 10;
+            const stepSize = (targetZoom - currentZoom) / steps;
+            let step = 0;
+
+            const animate = () => {
+                if (step < steps) {
+                    currentZoom += stepSize;
+                    updateZoom();
+                    step++;
+                    requestAnimationFrame(animate);
+                }
+            };
+
+            requestAnimationFrame(animate);
+        }
+
+        // Toggle fullscreen mode
+        function toggleFullscreen() {
+            const container = document.getElementById('pdfContainer');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Enhanced PDF loading handler
+        window.addEventListener('load', () => {
+            const pdfViewer = document.getElementById('pdfViewer');
+            
+            // Focus the PDF viewer when loaded
+            pdfViewer.onload = () => {
+                pdfViewer.contentWindow.focus();
+            };
+
+            // Initialize zoom
+            updateZoom();
+        });
     </script>
+
+    <!-- Add these styles to your existing styles or in a <style> tag -->
+    <style>
+        .toolbar-button {
+            @apply p-2 text-gray-700 hover:bg-gray-200 rounded-lg transition-colors duration-150 
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+        }
+        
+        .toolbar-button-secondary {
+            @apply px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-200 rounded-md transition-colors duration-150
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+        }
+    </style>
 </x-app-layout>
