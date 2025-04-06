@@ -70,12 +70,8 @@ class ResearchRepositoryController extends Controller {
         try {
             $project = ResearchRepository::findOrFail($id);
             
-            // Get related studies based on department
-            $relatedStudies = ResearchRepository::where('id', '!=', $id)
-                ->where('department', $project->department)
-                ->where('approved', true)
-                ->limit(4)
-                ->get();
+            // Get related studies based on title similarity
+            $relatedStudies = $project->getRelatedStudies();
 
             // Get file URL for PDF viewer
             $pdfUrl = asset('storage/' . $project->file);
@@ -83,7 +79,9 @@ class ResearchRepositoryController extends Controller {
             return view('research.show', compact('project', 'relatedStudies', 'pdfUrl'));
 
         } catch (\Exception $e) {
-            return redirect()->route('dashboard')
+            \Log::error('Error showing research: ' . $e->getMessage());
+            return redirect()
+                ->route('dashboard')
                 ->with('error', 'Research not found.');
         }
     }
@@ -108,5 +106,35 @@ class ResearchRepositoryController extends Controller {
     {
         $research = ResearchRepository::findOrFail($id);
         return view('research.edit', compact('research'));
+    }
+
+    public function getSearchRecommendations(Request $request)
+    {
+        try {
+            $term = $request->get('term');
+            
+            if (empty($term) || strlen($term) < 2) {
+                return response()->json([]);
+            }
+
+            $recommendations = ResearchRepository::where('approved', true)
+                ->where(function($query) use ($term) {
+                    $query->where('project_name', 'LIKE', "%{$term}%")
+                          ->orWhere('members', 'LIKE', "%{$term}%")
+                          ->orWhere('department', 'LIKE', "%{$term}%");
+                })
+                ->select('id', 'project_name', 'department')
+                ->limit(5)
+                ->get();
+
+            \Log::debug('Search term:', ['term' => $term]);
+            \Log::debug('Search results:', ['count' => $recommendations->count(), 'data' => $recommendations]);
+
+            return response()->json($recommendations);
+            
+        } catch (\Exception $e) {
+            \Log::error('Search recommendations error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

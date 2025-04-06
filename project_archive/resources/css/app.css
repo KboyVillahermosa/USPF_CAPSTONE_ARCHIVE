@@ -1,3 +1,19 @@
 @tailwind base;
-@tailwind components;
+@tailwind components;   
 @tailwind utilities;
+
+@layer components {
+    .search-input-wrapper {
+        @apply relative shadow-lg rounded-lg overflow-hidden;
+    }
+    
+    .search-input {
+        @apply w-full px-6 py-4 text-lg border-0;
+        @apply focus:ring-2 focus:ring-blue-400 focus:outline-none;
+    }
+    
+    .recommendation-item {
+        @apply p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0;
+        @apply transition duration-150;
+    }
+}

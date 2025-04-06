@@ -4,7 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ResearchRepositoryController;
 use App\Http\Controllers\FacultyResearchController;
-
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ResearchController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,6 +42,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/research/{id}', [FacultyResearchController::class, 'show'])->name('research.show');
 });
 
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/research', [ResearchRepositoryController::class, 'adminIndex'])
+        ->name('admin.research.index');
+    Route::put('/research/{id}/status', [ResearchRepositoryController::class, 'updateStatus'])
+        ->name('research.status.update');
+});
 
 // Store uploaded research
 Route::post('/research/store', [ResearchRepositoryController::class, 'store'])->name('research.store');
@@ -48,15 +55,9 @@ Route::post('/research/store', [ResearchRepositoryController::class, 'store'])->
 // Dashboard to display approved research projects
 Route::get('/dashboard', [ResearchRepositoryController::class, 'dashboard'])->name('dashboard');
 
-
 Route::get('/research/history', [ResearchRepositoryController::class, 'history'])->name('research.history');
 Route::get('/research/edit/{id}', [ResearchRepositoryController::class, 'edit'])->name('research.edit');
 Route::post('/research/update/{id}', [ResearchRepositoryController::class, 'update'])->name('research.update');
-
-
-
-
-
 
 Route::get('/research/{id}', [ResearchRepositoryController::class, 'show'])->name('research.show');
 Route::get('/research/edit/{id}', [ResearchRepositoryController::class, 'edit'])->name('research.edit');
@@ -66,5 +67,12 @@ Route::get('/history', [ResearchRepositoryController::class, 'history'])->name('
 
 Route::get('/dashboard', [ResearchRepositoryController::class, 'dashboard'])->name('dashboard');
 
+Route::get('/search-recommendations', [App\Http\Controllers\ResearchRepositoryController::class, 'getSearchRecommendations'])->name('search.recommendations');
+
+// Department Routes
+Route::get('/department/{department}', [DepartmentController::class, 'show'])->name('department.show');
+
+// Research Routes
+Route::get('/research/{id}', [ResearchController::class, 'show'])->name('research.show');
 
 require __DIR__.'/auth.php';
