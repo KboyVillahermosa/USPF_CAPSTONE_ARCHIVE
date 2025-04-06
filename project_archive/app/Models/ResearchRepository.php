@@ -9,7 +9,11 @@ use Illuminate\Support\Str;
 class ResearchRepository extends Model {
     use CrudTrait, HasFactory;
 
-    protected $fillable = ['user_id', 'project_name', 'members', 'department', 'curriculum', 'abstract', 'banner_image', 'file', 'approved'];
+    protected $fillable = ['user_id', 'project_name', 'members', 'department', 'curriculum', 'abstract', 'banner_image', 'file', 'approved', 'rejected', 'rejection_reason'];
+
+    protected $casts = [
+        'rejected' => 'boolean',
+    ];
 
     public function getRelatedStudies()
     {

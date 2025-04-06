@@ -25,6 +25,8 @@ class ResearchRepositoryCrudController extends CrudController {
         CRUD::column('department');
         CRUD::column('abstract');
         CRUD::column('approved')->type('boolean');
+        CRUD::column('rejected')->type('boolean');
+        CRUD::column('rejection_reason');
 
         // Display banner image in list
         CRUD::addColumn([
@@ -69,6 +71,17 @@ class ResearchRepositoryCrudController extends CrudController {
         CRUD::field('file')->type('upload')->upload(true)->disk('public');
 
         CRUD::field('approved')->type('checkbox');
+        
+        // Add rejection fields
+        CRUD::field('rejected')->type('checkbox');
+        CRUD::field([
+            'name' => 'rejection_reason',
+            'type' => 'textarea',
+            'label' => 'Rejection Reason',
+            'wrapper' => [
+                'class' => 'form-group rejection-reason-field',
+            ],
+        ]);
     }
 
     protected function setupUpdateOperation() {
