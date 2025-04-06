@@ -63,8 +63,7 @@ return [
     'home_link' => '',
 
     // Menu logo. You can replace this with an <img> tag if you have a logo.
-'project_logo' => '',
-
+    'project_logo' => '<img src="' . asset('images/logo.png') . '" alt="USPF Logo" class="h-8">',
 
     // Show / hide breadcrumbs on admin panel pages.
     'breadcrumbs' => true,
