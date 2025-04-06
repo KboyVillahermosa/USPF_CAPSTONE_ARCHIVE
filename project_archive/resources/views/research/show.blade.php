@@ -128,31 +128,57 @@
         <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
             <h3 class="text-xl font-semibold mb-4">Download Purpose</h3>
             <p class="text-gray-600 mb-4">
-                Before proceeding with the download, please provide the purpose of your request. This helps us understand how the document will be used and ensures responsible access to the content.
+                Please select your purpose for downloading this research paper:
             </p>
 
             <form action="{{ route('research.download', $project) }}" method="POST" id="downloadForm">
                 @csrf
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-medium mb-2">Select Purpose:</label>
-                    <select name="purpose" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Please select a purpose...</option>
-                        <option value="academic_research">Academic Research</option>
-                        <option value="thesis_reference">Thesis/Dissertation Reference</option>
-                        <option value="literature_review">Literature Review</option>
-                        <option value="course_requirement">Course Requirement</option>
-                        <option value="teaching_material">Teaching Material</option>
-                        <option value="personal_study">Personal Study</option>
-                        <option value="industry_research">Industry/Professional Research</option>
-                        <option value="other">Other (Please specify)</option>
-                    </select>
-                </div>
+                <div class="mb-4 space-y-3">
+                    <div class="flex items-start">
+                        <input type="checkbox" name="purpose[]" value="thesis_reference" 
+                            class="mt-1 mr-3" id="thesis_reference">
+                        <label for="thesis_reference" class="text-gray-700">
+                            For Thesis/Capstone Reference
+                        </label>
+                    </div>
 
-                <div id="otherPurposeField" class="mb-4 hidden">
-                    <label class="block text-gray-700 font-medium mb-2">Please specify:</label>
-                    <textarea name="other_purpose" rows="2" 
-                        class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    ></textarea>
+                    <div class="flex items-start">
+                        <input type="checkbox" name="purpose[]" value="literature_review" 
+                            class="mt-1 mr-3" id="literature_review">
+                        <label for="literature_review" class="text-gray-700">
+                            Literature Review
+                        </label>
+                    </div>
+
+                    <div class="flex items-start">
+                        <input type="checkbox" name="purpose[]" value="research_work" 
+                            class="mt-1 mr-3" id="research_work">
+                        <label for="research_work" class="text-gray-700">
+                            Research Work
+                        </label>
+                    </div>
+
+                    <div class="flex items-start">
+                        <input type="checkbox" name="purpose[]" value="academic_study" 
+                            class="mt-1 mr-3" id="academic_study">
+                        <label for="academic_study" class="text-gray-700">
+                            Academic Study
+                        </label>
+                    </div>
+
+                    <div class="flex items-start">
+                        <input type="checkbox" name="purpose[]" value="other" 
+                            class="mt-1 mr-3" id="other_purpose">
+                        <label for="other_purpose" class="text-gray-700">
+                            Other Purpose
+                        </label>
+                    </div>
+
+                    <div id="otherPurposeField" class="hidden">
+                        <input type="text" name="other_purpose_text" 
+                            class="w-full mt-2 p-2 border rounded"
+                            placeholder="Please specify your purpose">
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-3">
@@ -172,7 +198,8 @@
     <script>
         const downloadModal = document.getElementById('downloadModal');
         const downloadForm = document.getElementById('downloadForm');
-        const purposeSelect = downloadForm.querySelector('select[name="purpose"]');
+        const checkboxes = downloadForm.querySelectorAll('input[type="checkbox"]');
+        const otherCheckbox = document.getElementById('other_purpose');
         const otherPurposeField = document.getElementById('otherPurposeField');
 
         // Show modal when download button is clicked
@@ -185,24 +212,33 @@
         document.getElementById('cancelDownload').addEventListener('click', () => {
             downloadModal.classList.remove('flex');
             downloadModal.classList.add('hidden');
+            // Reset form
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+            otherPurposeField.classList.add('hidden');
         });
 
-        // Show/hide other purpose field
-        purposeSelect.addEventListener('change', () => {
-            otherPurposeField.classList.toggle('hidden', purposeSelect.value !== 'other');
+        // Toggle other purpose text field
+        otherCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                otherPurposeField.classList.remove('hidden');
+            } else {
+                otherPurposeField.classList.add('hidden');
+            }
         });
 
         // Validate form before submission
         downloadForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            if (!purposeSelect.value) {
-                alert('Please select a purpose for downloading.');
+            const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
+            
+            if (checkedBoxes.length === 0) {
+                alert('Please select at least one purpose for downloading.');
                 return;
             }
 
-            if (purposeSelect.value === 'other' && !downloadForm.other_purpose.value.trim()) {
-                alert('Please specify your purpose for downloading.');
+            if (otherCheckbox.checked && !downloadForm.other_purpose_text.value.trim()) {
+                alert('Please specify your other purpose.');
                 return;
             }
 

@@ -23,22 +23,32 @@ class ResearchController extends Controller
     {
         $project = ResearchRepository::findOrFail($id);
         
-        // Validate the request
+        // Validate the download purpose
         $request->validate([
-            'purpose' => 'required|string',
-            'other_purpose' => 'required_if:purpose,other|string|max:500',
+            'purpose' => 'required|array',
+            'other_purpose_text' => 'nullable|string'
         ]);
 
-        // Log the download purpose (optional)
-        \Log::info('Research Download', [
+        // Log the download
+        \App\Models\DownloadLog::create([
             'research_id' => $project->id,
             'user_id' => auth()->id(),
-            'purpose' => $request->purpose,
-            'other_purpose' => $request->other_purpose,
-            'timestamp' => now(),
+            'purposes' => $request->purpose,
+            'ip_address' => $request->ip()
         ]);
 
-        // Generate the file download
-        return Storage::download($project->file, $project->project_name . '.pdf');
+        // Get the file path - use 'file' instead of 'file_path'
+        $filePath = $project->file;
+
+        // Check if file exists
+        if (!Storage::disk('public')->exists($filePath)) {
+            return back()->with('error', 'File not found.');
+        }
+
+        // Return file download response
+        return Storage::disk('public')->download(
+            $filePath, 
+            $project->project_name . '.' . pathinfo($filePath, PATHINFO_EXTENSION)
+        );
     }
 }

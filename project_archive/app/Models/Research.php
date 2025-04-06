@@ -46,4 +46,9 @@ class Research extends Model
             $this->publication_date->format('Y')
         );
     }
+
+    public function versions()
+    {
+        return $this->hasMany(ResearchVersion::class);
+    }
 }
