@@ -4,39 +4,38 @@
         <!-- Background Image with Overlay -->
         <div class="absolute inset-0 z-0">
             <div class="absolute inset-0 bg-black/60"></div> <!-- Dark overlay -->
-            <img src="{{ asset('images/image.jpg') }}" 
-                 alt="Library Background" 
-                 class="w-full h-full object-cover">
+            <img src="{{ asset('images/image.jpg') }}" alt="Library Background" class="w-full h-full object-cover">
         </div>
-        
+
         <!-- Content Overlay -->
         <div class="relative z-10 h-full flex items-center">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h1 class="text-8xl font-bold mb-4 text-white">
+                <h1
+                    class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 text-white leading-tight">
                     Preserving Knowledge, Empowering Research
                 </h1>
-                <p class="text-xl text-white mb-8 max-w-3xl mx-auto">
-                    Discover, Access, and Contribute to the University of Southern Philippines Foundation's digital archive of research papers.
+                <p
+                    class="text-base sm:text-lg md:text-xl text-white mb-8 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 leading-relaxed">
+                    Discover, Access, and Contribute to the University of Southern Philippines Foundation's digital
+                    archive of research papers.
                 </p>
-                
+
                 <!-- Search Form -->
                 <div class="max-w-2xl mx-auto">
                     <form method="GET" action="{{ route('dashboard') }}" class="relative">
                         <div class="relative">
-                            <input type="text" 
-                                   name="search" 
-                                   id="search-input"
-                                   value="{{ request('search') }}"
-                                   placeholder="Search research papers..." 
-                                   class="w-full px-6 py-4 rounded-lg shadow-lg text-gray-800 text-lg border-0 focus:ring-2 focus:ring-blue-400"
-                                   autocomplete="off">
-                            <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition">
+                            <input type="text" name="search" id="search-input" value="{{ request('search') }}"
+                                placeholder="Search research papers..."
+                                class="w-full px-6 py-4 rounded-lg shadow-lg text-gray-800 text-lg border-0 focus:ring-2 focus:ring-blue-400"
+                                autocomplete="off">
+                            <button type="submit"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition">
                                 <i class="fas fa-search mr-2"></i>
                                 Search
                             </button>
                         </div>
-                        <div id="search-recommendations" 
-                             class="absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-2 hidden text-left">
+                        <div id="search-recommendations"
+                            class="absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-2 hidden text-left">
                         </div>
                     </form>
                 </div>
@@ -51,8 +50,7 @@
                 <h2 class="text-2xl font-bold mb-6 text-gray-800">Browse by Department</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     @foreach($departments as $department => $projects)
-                        <a href="{{ route('department.show', ['department' => urlencode($department)]) }}" 
-                           class="block">
+                        <a href="{{ route('department.show', ['department' => urlencode($department)]) }}" class="block">
                             <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow p-6 text-center">
                                 <div class="text-4xl mb-4">
                                     <i class="fas fa-building text-blue-500"></i>
@@ -71,22 +69,22 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         @foreach($projects as $project)
                             <div class="bg-white border rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                                <img src="{{ asset('storage/' . $project->banner_image) }}" 
-                                    alt="Project Banner" class="w-full h-48 object-cover rounded-t-lg">
-                                
+                                <img src="{{ asset('storage/' . $project->banner_image) }}" alt="Project Banner"
+                                    class="w-full h-48 object-cover rounded-t-lg">
+
                                 <div class="p-4">
                                     <h4 class="font-bold text-xl mb-2">{{ $project->project_name }}</h4>
-                                    
+
                                     <div class="mb-3 text-gray-600">
                                         <p><span class="font-semibold">Authors:</span> {{ $project->members }}</p>
                                         <p><span class="font-semibold">Department:</span> {{ $project->department }}</p>
                                         <p><span class="font-semibold">Curriculum:</span> {{ $project->curriculum }}</p>
-                                        <p><span class="font-semibold">Published:</span> 
+                                        <p><span class="font-semibold">Published:</span>
                                             {{ $project->created_at->format('F d, Y') }}
                                         </p>
                                     </div>
 
-                                    <a href="{{ route('research.show', $project->id) }}" 
+                                    <a href="{{ route('research.show', $project->id) }}"
                                         class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
                                         View Details
                                     </a>
@@ -99,6 +97,9 @@
         </div>
     </div>
 
+    <!-- Include Footer -->
+    @include('layouts.footer')
+
     <script>
         const searchInput = document.getElementById('search-input');
         const recommendationsContainer = document.getElementById('search-recommendations');
@@ -106,7 +107,7 @@
         searchInput.addEventListener('input', async (e) => {
             const searchTerm = e.target.value;
             console.log('Search term:', searchTerm); // Debug log
-            
+
             if (searchTerm.length < 2) {
                 recommendationsContainer.classList.add('hidden');
                 return;
@@ -117,15 +118,15 @@
                 console.log('Fetching URL:', url); // Debug log
 
                 const response = await fetch(url);
-                
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                 }
-                
+
                 const recommendations = await response.json();
                 console.log('Received recommendations:', recommendations); // Debug log
-                
+
                 if (recommendations && recommendations.length > 0) {
                     const html = recommendations
                         .map(item => `
@@ -134,10 +135,10 @@
                                 <div class="text-sm text-gray-600">${item.department}</div>
                             </div>
                         `).join('');
-                        
+
                     recommendationsContainer.innerHTML = html;
                     recommendationsContainer.classList.remove('hidden');
-                    
+
                     // Add click handlers for recommendations
                     document.querySelectorAll('.recommendation-item').forEach(item => {
                         item.addEventListener('click', () => {
