@@ -5,8 +5,10 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                  {{-- Replace the entire content with your custom logo --}}
-                   <!-- #region --><img src="{{ asset('images/logo.png') }}" alt="Your Logo Name" class="h-12 w-auto" />
+                    {{-- Replace the entire content with your custom logo --}}
+                    <img src="{{ asset('images/logo2.png') }}" alt="Your Logo Name" class="h-12 w-auto" />
+                    <span class="hidden md:inline-block mr-2 text-sm lg:text-base xl:text-lg font-medium">USPF Research Archive</span>
+                    <span class="md:hidden mr-2 text-xs font-medium">USPF Archive</span>
                 </div>
 
                 <!-- Navigation Links -->

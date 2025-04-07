@@ -13,7 +13,7 @@
 
                     <!-- Project Name -->
                     <div class="mb-6">
-                        <label class="block text-gray-800 font-semibold mb-2">Project Name</label>
+                        <label class="block text-gray-800 font-semibold mb-2">Research Title</label>
                         <input type="text" name="project_name"
                             class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring focus:ring-blue-200" required>
                     </div>

@@ -9,8 +9,11 @@ return new class extends Migration
     public function up()
     {
         Schema::table('research_repositories', function (Blueprint $table) {
-            $table->foreignId('user_id')->after('id')->constrained()->onDelete('cascade');
+            if (!Schema::hasColumn('research_repositories', 'user_id')) {
+                $table->unsignedBigInteger('user_id')->after('id');
+            }
         });
+        
     }
 
     public function down()

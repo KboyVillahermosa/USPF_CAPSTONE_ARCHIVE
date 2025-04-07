@@ -81,4 +81,6 @@ Route::get('/check-research/{name}', function($name) {
         'exists' => \App\Models\Research::where('project_name', $name)->exists()
     ]);
 });
+
+
 require __DIR__.'/auth.php';
