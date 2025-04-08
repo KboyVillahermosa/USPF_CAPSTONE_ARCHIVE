@@ -77,6 +77,7 @@
                         </select>
                     </div>
 
+
                     <!-- Abstract with Text Editor -->
                     <div class="mb-6">
                         <label class="block text-gray-800 font-semibold mb-2">Abstract</label>
@@ -84,19 +85,6 @@
                         <trix-editor input="abstract"
                             class="w-full border-gray-300 rounded-lg focus:ring focus:ring-blue-200"></trix-editor>
                     </div>
-
-                    <!-- Add this right before the file upload section -->
-                    <div id="versionDetails" class="mb-6 hidden">
-                        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-                            <p>A research paper with this title already exists. This will be saved as a new version.</p>
-                        </div>
-                        <label class="block text-gray-800 font-semibold mb-2">What's new in this version?</label>
-                        <textarea name="version_description" 
-                            class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring focus:ring-blue-200"
-                            rows="3"
-                            placeholder="Describe the changes or improvements in this version..."></textarea>
-                    </div>
-
                     <!-- Banner Image Upload -->
                     <div class="mb-6">
                         <label class="block text-gray-800 font-semibold mb-2">Banner Image</label>
@@ -159,17 +147,6 @@
             }
         });
 
-        document.querySelector('input[name="project_name"]').addEventListener('blur', async function() {
-            const projectName = this.value;
-            const response = await fetch(`/api/check-duplicate/${encodeURIComponent(projectName)}`);
-            const data = await response.json();
-            
-            if (data.exists) {
-                document.getElementById('versionDetails').classList.remove('hidden');
-            } else {
-                document.getElementById('versionDetails').classList.add('hidden');
-            }
-        });
 
         function setupDragAndDrop(dropAreaId, inputId, fileNameId, previewId = null, previewContainerId = null) {
             const dropArea = document.getElementById(dropAreaId);
