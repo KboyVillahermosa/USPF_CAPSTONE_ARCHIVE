@@ -4,12 +4,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 @if($project)
                     <!-- Download Button at Top -->
-                    <div class="mb-6 flex justify-end">
-                        <button data-download-trigger
-                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-                            Download Research Paper
-                        </button>
-                    </div>
+                    
 
                     <div class="mb-6">
                         <h1 class="text-3xl font-bold mb-2">{{ $project->project_name }}</h1>
@@ -150,13 +145,32 @@
                                     @php
                                         $membersList = explode(',', $project->members);
                                         $lastMember = array_pop($membersList);
-                                        $formattedMembers = !empty($membersList) ?
-                                            implode(', ', $membersList) . ' & ' . $lastMember :
-                                            $lastMember;
+                                        
+                                        // Format authors for APA (Last Name, First Initial.)
+                                        $formattedMembers = array_map(function($member) {
+                                            $parts = array_map('trim', explode(' ', $member));
+                                            $lastName = array_pop($parts);
+                                            $initials = array_map(function($part) {
+                                                return strtoupper(substr($part, 0, 1)) . '.';
+                                            }, $parts);
+                                            return $lastName . ', ' . implode(' ', $initials);
+                                        }, $membersList);
+
+                                        $lastMemberParts = array_map('trim', explode(' ', $lastMember));
+                                        $lastName = array_pop($lastMemberParts);
+                                        $initials = array_map(function($part) {
+                                            return strtoupper(substr($part, 0, 1)) . '.';
+                                        }, $lastMemberParts);
+                                        $formattedLastMember = $lastName . ', ' . implode(' ', $initials);
+
+                                        $allAuthors = !empty($formattedMembers) ? 
+                                            implode(', ', $formattedMembers) . ', & ' . $formattedLastMember :
+                                            $formattedLastMember;
                                     @endphp
-                                    {{ $formattedMembers }} ({{ $project->created_at->format('Y') }}).
-                                    {{ $project->project_name }}. {{ $project->department }},
-                                    {{ $project->curriculum }}, Research Archive.
+                                    {{ $allAuthors }} ({{ $project->created_at->format('Y') }}). 
+                                    {{ $project->project_name }}. 
+                                    {{ $project->department }}, {{ $project->curriculum }}, 
+                                    University of Southern Philippines Foundation.
                                 </p>
                             </div>
 
@@ -165,26 +179,92 @@
                                 <p class="text-gray-700">
                                     @php
                                         $membersList = explode(',', $project->members);
-                                        $formattedMembersIEEE = implode(', ', array_map('trim', $membersList));
+                                        // Format authors for IEEE (First Initial. Last Name)
+                                        $formattedMembersIEEE = array_map(function($member) {
+                                            $parts = array_map('trim', explode(' ', $member));
+                                            $lastName = array_pop($parts);
+                                            $initials = array_map(function($part) {
+                                                return strtoupper(substr($part, 0, 1)) . '.';
+                                            }, $parts);
+                                            return implode(' ', $initials) . ' ' . $lastName;
+                                        }, $membersList);
+
+                                        // Join with commas and 'and' for the last author
+                                        $lastAuthor = array_pop($formattedMembersIEEE);
+                                        $ieeeAuthors = !empty($formattedMembersIEEE) ? 
+                                            implode(', ', $formattedMembersIEEE) . ', and ' . $lastAuthor :
+                                            $lastAuthor;
                                     @endphp
-                                    {{ $formattedMembersIEEE }}, "{{ $project->project_name }},"
-                                    {{ $project->department }}, {{ $project->curriculum }},
-                                    {{ $project->created_at->format('Y') }}.
+                                    {{ $ieeeAuthors }}, "{{ $project->project_name }}," 
+                                    {{ $project->department }}, University of Southern Philippines Foundation, 
+                                    {{ $project->curriculum }}, {{ $project->created_at->format('Y') }}.
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Related Studies -->
-                        <div>
+                        <!-- Relat Studies -->
+                        <div class="mb-8">
                             <h2 class="text-xl font-semibold mb-3">Related Studies</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 @foreach($relatedStudies as $study)
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <h3 class="font-semibold">{{ $study->project_name }}</h3>
-                                        <p class="text-gray-600">{{ $study->department }}</p>
-                                        <a href="{{ route('research.show', $study) }}"
-                                            class="text-blue-500 hover:text-blue-700">View Research</a>
-                                    </div>
+                                    @php
+                                        // Calculate meaningful relationships using multiple criteria
+                                        $departmentMatch = $project->department === $study->department;
+                                        $curriculumMatch = $project->curriculum === $study->curriculum;
+                                        
+                                        // Extract keywords
+                                        $projectKeywords = array_map('trim', explode(',', $project->keywords ?? ''));
+                                        $studyKeywords = array_map('trim', explode(',', $study->keywords ?? ''));
+                                        $commonKeywords = array_intersect($projectKeywords, $studyKeywords);
+                                        
+                                        // Calculate title similarity
+                                        $projectWords = array_map('strtolower', explode(' ', $project->project_name));
+                                        $studyWords = array_map('strtolower', explode(' ', $study->project_name));
+                                        $commonWords = array_intersect($projectWords, $studyWords);
+                                        
+                                        // Determine if studies are truly related (must meet multiple criteria)
+                                        $isRelated = (
+                                            ($departmentMatch && !empty($commonKeywords)) || // Same department and shared keywords
+                                            ($departmentMatch && count($commonWords) >= 3) || // Same department and significant title overlap
+                                            (!empty($commonKeywords) && count($commonKeywords) >= 2) // Multiple shared keywords
+                                        );
+                                    @endphp
+
+                                    @if($isRelated)
+                                        <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
+                                            <div class="flex justify-between items-start mb-3">
+                                                <h3 class="font-semibold text-lg">{{ $study->project_name }}</h3>
+                                            </div>
+
+                                            <div class="space-y-2 mb-3">
+                                                <p class="text-sm text-gray-600">
+                                                    <span class="font-medium">Department:</span> {{ $study->department }}
+                                                </p>
+                                                <p class="text-sm text-gray-600">
+                                                    <span class="font-medium">Year:</span> {{ $study->created_at->format('Y') }}
+                                                </p>
+                                                
+                                                <!-- Show relationship indicators -->
+                                                <div class="flex flex-wrap gap-2 mt-2">
+                                                    @if(!empty($commonKeywords))
+                                                        <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
+                                                            Related Topics: {{ implode(', ', $commonKeywords) }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="flex justify-end">
+                                                <a href="{{ route('research.show', $study) }}"
+                                                   class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                    View Research
+                                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endif
                                 @endforeach
                             </div>
                         </div>

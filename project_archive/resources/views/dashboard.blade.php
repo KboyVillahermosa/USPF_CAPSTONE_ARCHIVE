@@ -12,7 +12,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h1
                     class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 text-white leading-tight">
-                    Preserving Knowledge, Empowering Research
+                    Preserving Knowledge Empowering Research
                 </h1>
                 <p
                     class="text-base sm:text-lg md:text-xl text-white mb-8 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 leading-relaxed">
