@@ -32,6 +32,7 @@ class UserCrudController extends CrudController
         CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
         CRUD::setEntityNameStrings('user', 'users');
 
+        // Email field
         $this->crud->addField([
             'name' => 'email',
             'type' => 'email',
@@ -39,11 +40,90 @@ class UserCrudController extends CrudController
             'attributes' => [
                 'required' => 'required'
             ],
-            'validations' => [
-                'required',
-                'email',
-                'unique:users,email,' . \Route::current()->parameter('id')
+        ]);
+
+        // Name field
+        $this->crud->addField([
+            'name' => 'name',
+            'type' => 'text',
+            'label' => 'Full Name',
+            'attributes' => [
+                'required' => 'required'
             ],
+        ]);
+
+        // Department field
+        $this->crud->addField([
+            'name' => 'department',
+            'type' => 'select_from_array',
+            'options' => [
+                'CCS' => 'College of Computer Studies',
+                'COE' => 'College of Engineering',
+                'CBA' => 'College of Business Administration',
+                // Add other departments
+            ],
+            'label' => 'Department',
+            'allows_null' => false,
+        ]);
+
+        // Course field
+        $this->crud->addField([
+            'name' => 'course',
+            'type' => 'select_from_array',
+            'options' => [
+                'BSIT' => 'BS Information Technology',
+                'BSCS' => 'BS Computer Science',
+                'BSIS' => 'BS Information Systems',
+                // Add other courses
+            ],
+            'label' => 'Course',
+        ]);
+
+        // Year Level field
+        $this->crud->addField([
+            'name' => 'year_level',
+            'type' => 'select_from_array',
+            'options' => [
+                '1st' => '1st Year',
+                '2nd' => '2nd Year',
+                '3rd' => '3rd Year',
+                '4th' => '4th Year',
+            ],
+            'label' => 'Year Level',
+        ]);
+
+        // Student ID field
+        $this->crud->addField([
+            'name' => 'student_id',
+            'type' => 'text',
+            'label' => 'Student/Faculty ID',
+        ]);
+
+        // Role field
+        $this->crud->addField([
+            'name' => 'role',
+            'type' => 'select_from_array',
+            'options' => [
+                'student' => 'Student',
+                'faculty' => 'Faculty',
+                'admin' => 'Administrator'
+            ],
+            'label' => 'Role',
+            'allows_null' => false,
+        ]);
+
+        // Position field (for faculty)
+        $this->crud->addField([
+            'name' => 'position',
+            'type' => 'text',
+            'label' => 'Position',
+        ]);
+
+        // Password field
+        $this->crud->addField([
+            'name' => 'password',
+            'type' => 'password',
+            'label' => 'Password',
         ]);
     }
 
