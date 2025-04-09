@@ -83,4 +83,5 @@ Route::get('/check-research/{name}', function($name) {
 });
 
 
+
 require __DIR__.'/auth.php';

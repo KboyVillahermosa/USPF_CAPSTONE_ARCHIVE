@@ -1,4 +1,14 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ 
+    open: false, 
+    showFilters: false,
+    scrolled: false
+}" 
+x-init="window.addEventListener('scroll', () => { scrolled = window.pageYOffset > 0 })"
+:class="{ 
+    'bg-white/95 backdrop-blur-md shadow-md': scrolled,
+    'bg-white': !scrolled
+}"
+class="border-b border-gray-100 z-50 w-full fixed top-0 transition-all duration-200">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -6,7 +16,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     {{-- Replace the entire content with your custom logo --}}
-                    <img src="{{ asset('images/logo2.png') }}" alt="Your Logo Name" class="h-12 w-auto" />
+                    <img src="{{ asset('images/uspf-logo.png') }}" alt="Your Logo Name" class="h-12 w-auto" />
                     <span class="hidden md:inline-block mr-2 text-sm lg:text-base xl:text-lg font-medium">USPF Research Archive</span>
                     <span class="md:hidden mr-2 text-xs font-medium">USPF Archive</span>
                 </div>
@@ -46,6 +56,77 @@
                         {{ __('History') }}
                     </x-nav-link>
                 </div>
+            </div>
+
+            <!-- Enhanced Search Bar with Filters -->
+            <div class="flex-1 max-w-3xl px-6 flex items-center">
+                <form method="GET" action="{{ route('dashboard') }}" class="w-full relative">
+                    <div class="flex gap-2">
+                        <!-- Search Input -->
+                        <div class="flex-1 relative">
+                            <input type="text" 
+                                name="search" 
+                                id="search-input" 
+                                placeholder="Search research papers..."
+                                value="{{ request('search') }}"
+                                class="w-full px-4 py-2 pl-10 pr-4 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                                autocomplete="off">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+
+                        <!-- Filter Button -->
+                        <button type="button" 
+                                @click="showFilters = !showFilters"
+                                class="px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-filter text-gray-500"></i>
+                        </button>
+                    </div>
+
+                    <!-- Advanced Filters Dropdown -->
+                    <div x-show="showFilters"
+                        @click.away="showFilters = false"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0"
+                        class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg p-4 z-50">
+                        
+                        <!-- Department Filter -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                            <select name="department" class="w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-400">
+                                <option value="">All Departments</option>
+                                <option value="CCS" {{ request('department') === 'CCS' ? 'selected' : '' }}>College of Computer Studies</option>
+                                <option value="COE" {{ request('department') === 'COE' ? 'selected' : '' }}>College of Engineering</option>
+                                <!-- Add other departments -->
+                            </select>
+                        </div>
+
+                        <!-- Year Range -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" 
+                                    name="year_from" 
+                                    placeholder="From" 
+                                    value="{{ request('year_from') }}"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-400">
+                                <input type="number" 
+                                    name="year_to" 
+                                    placeholder="To" 
+                                    value="{{ request('year_to') }}"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-400">
+                            </div>
+                        </div>
+
+                        <!-- Apply Filters Button -->
+                        <button type="submit" 
+                                class="w-full bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 transition-colors">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <!-- Settings Dropdown -->

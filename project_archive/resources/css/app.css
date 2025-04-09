@@ -16,4 +16,27 @@
         @apply p-4 hover:bg-gray-50 cursor-pointer border-b last:border-b-0;
         @apply transition duration-150;
     }
+
+    .feature-card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+}
+
+/* Sticky Navigation Styles */
+nav {
+    transition: all 0.3s ease;
+}
+
+nav.scrolled {
+    backdrop-filter: blur(12px);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Add padding to body to prevent content from hiding under fixed nav */
+body {
+    padding-top: 4rem; /* Adjust this value to match your navbar height */
 }

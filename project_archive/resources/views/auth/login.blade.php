@@ -4,7 +4,7 @@
         <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-20 xl:px-24">
             <div class="mx-auto w-full max-w-sm lg:w-96">
                 <div class="mb-8 text-center">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-12 mx-auto mb-4">
+                    <img src="{{ asset('images/uspf-logo.png') }}" alt="Logo" class="h-12 mx-auto mb-4">
                     <h2 class="text-2xl font-bold text-gray-900">Welcome back</h2>
                     <p class="mt-2 text-sm text-gray-600">
                         Please sign in to your account

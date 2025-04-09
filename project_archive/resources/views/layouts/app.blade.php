@@ -20,6 +20,9 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
 
+        <!-- Add AOS CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -55,5 +58,15 @@
         </div>
         
         @stack('scripts')
+
+        <!-- Initialize AOS (place before closing body tag) -->
+        <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+        <script>
+            AOS.init({
+                duration: 800,
+                easing: 'ease-out',
+                once: true
+            });
+        </script>
     </body>
 </html>
