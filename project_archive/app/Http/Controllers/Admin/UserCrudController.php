@@ -14,7 +14,9 @@ use App\Http\Requests\UserRequest;
 class UserCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
-    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+    use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
+        store as traitStore;
+    }
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
@@ -29,6 +31,20 @@ class UserCrudController extends CrudController
         CRUD::setModel(\App\Models\User::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
         CRUD::setEntityNameStrings('user', 'users');
+
+        $this->crud->addField([
+            'name' => 'email',
+            'type' => 'email',
+            'label' => 'Email',
+            'attributes' => [
+                'required' => 'required'
+            ],
+            'validations' => [
+                'required',
+                'email',
+                'unique:users,email,' . \Route::current()->parameter('id')
+            ],
+        ]);
     }
 
     /**
@@ -73,5 +89,17 @@ class UserCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function store()
+    {
+        try {
+            $response = $this->traitStore();
+            \Alert::success('User created successfully')->flash();
+            return $response;
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            \Alert::error('The email address is already in use.')->flash();
+            return redirect()->back()->withInput();
+        }
     }
 }

@@ -25,7 +25,9 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'name' => 'required|min:5',
+            'email' => 'required|email|unique:users,email,' . $this->get('id'),
+            'password' => 'required|min:8'
         ];
     }
 
@@ -49,7 +51,9 @@ class UserRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'email.unique' => 'This email address is already registered in the system.',
+            'email.required' => 'The email field is required.',
+            'email.email' => 'Please enter a valid email address.',
         ];
     }
 }
