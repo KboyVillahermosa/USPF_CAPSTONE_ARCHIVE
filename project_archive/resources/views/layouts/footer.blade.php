@@ -4,7 +4,7 @@
             <!-- About Section -->
             <div class="col-span-1 md:col-span-2">
                 <div class="flex items-center mb-4">
-                    <img src="{{ asset('images/logo.png') }}" alt="USPF Logo" class="h-10 w-auto mr-3">
+                    <img src="{{ asset('images/logo-uspf.png') }}" alt="USPF Logo" class="h-10 w-auto mr-3">
                     <h3 class="text-lg font-semibold">USPF Research Archive</h3>
                 </div>
                 <p class="text-sm text-gray-400 mb-4">

@@ -49,6 +49,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('research.status.update');
 });
 
+Route::middleware(['auth', 'faculty'])->group(function () {
+    Route::post('/research/upload', [ResearchController::class, 'store'])
+        ->name('research.faculty.store');
+    Route::get('/research/history', [ResearchController::class, 'history'])
+        ->name('research.history');
+});
+
 // Store uploaded research
 Route::post('/research/store', [ResearchRepositoryController::class, 'store'])->name('research.store');
 
@@ -76,12 +83,10 @@ Route::get('/department/{department}', [DepartmentController::class, 'show'])->n
 Route::get('/research/{id}', [ResearchController::class, 'show'])->name('research.show');
 Route::post('/research/{id}/download', [ResearchController::class, 'download'])->name('research.download');
 Route::post('/research/{project}/download', [ResearchController::class, 'download'])->name('research.download');
-Route::get('/check-research/{name}', function($name) {
+Route::get('/check-research/{name}', function ($name) {
     return response()->json([
         'exists' => \App\Models\Research::where('project_name', $name)->exists()
     ]);
 });
 
-
-
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
