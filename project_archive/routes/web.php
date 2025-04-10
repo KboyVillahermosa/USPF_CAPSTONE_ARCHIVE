@@ -78,15 +78,16 @@ Route::get('/search-recommendations', [App\Http\Controllers\ResearchRepositoryCo
 
 // Department Routes
 Route::get('/department/{department}', [DepartmentController::class, 'show'])->name('department.show');
+Route::get('/departments/{department}', [DepartmentController::class, 'show'])->name('department.show');
 
 // Research Routes
 Route::get('/research/{id}', [ResearchController::class, 'show'])->name('research.show');
 Route::post('/research/{id}/download', [ResearchController::class, 'download'])->name('research.download');
 Route::post('/research/{project}/download', [ResearchController::class, 'download'])->name('research.download');
-Route::get('/check-research/{name}', function ($name) {
+Route::get('/check-research/{name}', function($name) {
     return response()->json([
         'exists' => \App\Models\Research::where('project_name', $name)->exists()
     ]);
 });
-
-require __DIR__ . '/auth.php';
+Route::get('department/{department}', [DepartmentController::class, 'show'])->name('department.show');
+require __DIR__.'/auth.php';

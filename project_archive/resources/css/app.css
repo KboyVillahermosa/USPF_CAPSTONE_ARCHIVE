@@ -40,3 +40,18 @@ nav.scrolled {
 body {
     padding-top: 4rem; /* Adjust this value to match your navbar height */
 }
+
+/* Carousel Animation Styles */
+.carousel-slide {
+    transition: opacity 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(1.05); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.95); }
+}

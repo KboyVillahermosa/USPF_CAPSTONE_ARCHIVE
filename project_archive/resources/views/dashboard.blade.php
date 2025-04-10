@@ -2,12 +2,34 @@
     <!-- Hero Section with Parallax Effect -->
     <div class="relative h-[100vh] bg-gradient-to-r from-blue-900/95 to-blue-800/90 pt-16 overflow-hidden">
         <div class="absolute inset-0 z-0">
-            <!-- Increased opacity of the black overlay from 80% to 90% -->
-            <div class="absolute inset-0 bg-black/100"></div>
-            <!-- Added a darker gradient overlay -->
-            <div class="absolute inset-0 bg-gradient-to-b from-black/90 to-black/90"></div>
-            <img src="{{ asset('images/image.jpg') }}" alt="Library Background" 
-                 class="w-full h-full object-cover transform scale-105 motion-safe:animate-subtle-zoom opacity-75">
+            <div x-data="carousel" class="relative w-full h-full">
+                <!-- Carousel slides -->
+                <template x-for="(slide, index) in slides" :key="index">
+                    <div x-show="currentSlide === index" 
+                         x-transition:enter="transition ease-out duration-1000"
+                         x-transition:enter-start="opacity-0 transform scale-95"
+                         x-transition:enter-end="opacity-100 transform scale-100"
+                         x-transition:leave="transition ease-in duration-300"
+                         x-transition:leave-start="opacity-100 transform scale-100"
+                         x-transition:leave-end="opacity-0 transform scale-95"
+                         class="absolute inset-0">
+                        <div class="absolute inset-0 bg-black/90"></div>
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/90 to-black/90"></div>
+                        <img :src="slide.image" :alt="slide.alt" 
+                             class="w-full h-full object-cover transform scale-105 opacity-75">
+                    </div>
+                </template>
+
+                <!-- Dots navigation -->
+                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+                    <template x-for="(slide, index) in slides" :key="index">
+                        <button @click="currentSlide = index" 
+                                :class="{'bg-white': currentSlide === index, 'bg-white/50': currentSlide !== index}"
+                                class="w-2 h-2 rounded-full transition-all duration-300">
+                        </button>
+                    </template>
+                </div>
+            </div>
         </div>
 
         <div class="relative z-10 h-full flex items-center">
@@ -131,16 +153,18 @@
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @foreach($departments as $department => $projects)
-                    <a href="{{ route('department.show', ['department' => urlencode($department)]) }}" 
-                       class="group" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
-                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 text-center border border-gray-100 group-hover:border-blue-500">
-                            <div class="text-4xl mb-4 text-blue-500 group-hover:scale-110 transition-transform duration-300">
-                                <i class="fas fa-building"></i>
+                    @if(!empty($department))
+                        <a href="{{ route('department.show', ['department' => $department]) }}" 
+                           class="group" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                            <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 p-6 text-center border border-gray-100 group-hover:border-blue-500">
+                                <div class="text-4xl mb-4 text-blue-500 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                                <h3 class="font-semibold text-lg mb-2 text-gray-800">{{ $department }}</h3>
+                                <p class="text-gray-600">{{ count($projects) }} Research Papers</p>
                             </div>
-                            <h3 class="font-semibold text-lg mb-2 text-gray-800">{{ $department }}</h3>
-                            <p class="text-gray-600">{{ count($projects) }} Research Papers</p>
-                        </div>
-                    </a>
+                        </a>
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -153,10 +177,12 @@
                 <div class="mb-12" data-aos="fade-up">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-bold text-gray-900">{{ $department }}</h3>
-                        <a href="{{ route('department.show', ['department' => urlencode($department)]) }}" 
-                           class="text-blue-500 hover:text-blue-600 font-medium">
-                            View All <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
+                        @if(!empty($department))
+                            <a href="{{ route('department.show', ['department' => $department]) }}" 
+                               class="text-blue-500 hover:text-blue-600 font-medium">
+                                View All <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        @endif
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         @foreach($projects as $project)
@@ -224,4 +250,22 @@
             to { transform: scale(1.1); }
         }
     </style>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('carousel', () => ({
+                currentSlide: 0,
+                slides: [
+                    { image: '{{ asset("images/image5.jpg") }}', alt: 'Library Background 1' },
+                    { image: '{{ asset("images/image4.jpg") }}', alt: 'Library Background 2' },
+                    { image: '{{ asset("images/image3.jpg") }}', alt: 'Library Background 3' }
+                ],
+                init() {
+                    setInterval(() => {
+                        this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                    }, 5000); // Change slide every 5 seconds
+                }
+            }));
+        });
+    </script>
 </x-app-layout>
