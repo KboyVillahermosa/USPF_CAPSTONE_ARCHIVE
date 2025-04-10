@@ -56,11 +56,13 @@ class ResearchRepositoryCrudController extends CrudController {
         CRUD::field('project_name');
         CRUD::field('members');
         CRUD::field('department')->type('select_from_array')->options([
-            'Engineering' => 'Engineering',
-            'Computer Science' => 'Computer Science',
-            'Business' => 'Business',
-            'Education' => 'Education',
-            'Medicine' => 'Medicine',
+            'College of Engineering and Architecture' => 'College of Engineering and Architecture',
+            'College of Computer Studies' => 'College of Computer Studies',
+            'College of Health Sciences' => 'College of Health Sciences',
+            'College of Social Work' => 'College of Social Work',
+            'College of Teacher Education, Arts and Sciences' => 'College of Teacher Education, Arts and Sciences',
+            'School of Business and Accountancy' => 'School of Business and Accountancy',
+            'Graduate School' => 'Graduate School',
         ]);
         CRUD::field('abstract')->type('textarea');
 

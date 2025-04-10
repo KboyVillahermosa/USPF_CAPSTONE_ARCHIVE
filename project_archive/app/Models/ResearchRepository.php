@@ -9,11 +9,40 @@ use Illuminate\Support\Str;
 class ResearchRepository extends Model {
     use CrudTrait, HasFactory;
 
-    protected $fillable = ['user_id', 'project_name', 'members', 'department', 'curriculum', 'abstract', 'banner_image', 'file', 'approved', 'rejected', 'rejection_reason'];
+    protected $table = 'research_repositories'; // Make sure this matches your database table
+
+    protected $fillable = [
+        'project_name',
+        'members',
+        'department',
+        'curriculum',
+        'abstract',
+        'file',
+        'banner_image',
+        'approved',
+        'rejected',
+        'rejection_reason',
+        'user_id'
+    ];
 
     protected $casts = [
         'rejected' => 'boolean',
     ];
+
+    public function setDepartmentAttribute($value)
+    {
+        // Log the value being set
+        \Log::info('Setting department attribute: ' . $value);
+        
+        // Make sure we never set null values
+        $this->attributes['department'] = $value ? $value : 'Not specified';
+    }
+
+    public function getDepartmentAttribute($value)
+    {
+        // Make sure we never return null values
+        return $value ? $value : 'Not specified';
+    }
 
     public function getRelatedStudies()
     {

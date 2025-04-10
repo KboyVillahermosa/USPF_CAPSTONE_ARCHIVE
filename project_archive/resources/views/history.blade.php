@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12"></div>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Show any flash messages -->
             @if(session('error'))
@@ -35,8 +35,9 @@
                             <tr class="bg-gray-100">
                                 <th class="px-4 py-2 border">Date</th>
                                 <th class="px-4 py-2 border">Project Title</th>
-                                <th class="px-4 py-2 border">Members</th>
+                                <th class="px-4 py-2 border">Authors</th>
                                 <th class="px-4 py-2 border">Department</th>
+                                <th class="px-4 py-2 border">Program</th>
                                 <th class="px-4 py-2 border">Status</th>
                                 <th class="px-4 py-2 border">Actions</th>
                             </tr>
@@ -47,7 +48,8 @@
                                     <td class="px-4 py-2 border">{{ $project->created_at->format('M d, Y') }}</td>
                                     <td class="px-4 py-2 border">{{ $project->project_name }}</td>
                                     <td class="px-4 py-2 border">{{ $project->members }}</td>
-                                    <td class="px-4 py-2 border">{{ $project->department }}</td>
+                                    <td class="px-4 py-2 border">{{ $project->department ?: 'Not specified' }}</td>
+                                    <td class="px-4 py-2 border">{{ $project->curriculum ?: 'Not specified' }}</td>
                                     <td class="px-4 py-2 border">
                                         @if ($project->approved)
                                             <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
