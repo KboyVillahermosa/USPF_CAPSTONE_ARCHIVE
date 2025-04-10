@@ -11,17 +11,51 @@ class ResearchController extends Controller
     public function index()
     {
         // Get all approved research projects
-        $projects = ResearchRepository::where('approved', true)
+        $allProjects = ResearchRepository::where('approved', true)
             ->orderBy('created_at', 'desc')
             ->get();
             
         // Group projects by department, ensuring we filter out any with empty departments
-        $departments = $projects->groupBy('department')
-            ->filter(function ($projects, $department) {
-                return !empty($department);
-            });
-            
-        return view('dashboard', compact('departments'));
+        // Using the accessor in the model to guarantee "Not specified" instead of null
+        $departments = $allProjects->groupBy(function($project) {
+            return $project->department; // This will use the accessor that returns "Not specified" for nulls
+        })->filter(function ($projects, $department) {
+            return !empty($department) && $department !== 'Not specified'; 
+        });
+        
+        // Add "Not specified" department at the end if there are projects
+        $unspecifiedProjects = $allProjects->filter(function($project) {
+            return $project->department === 'Not specified';
+        });
+        
+        if ($unspecifiedProjects->count() > 0) {
+            $departments->put('Other Departments', $unspecifiedProjects);
+        }
+        
+        // Get most recent submissions (last 3)
+        $recentSubmissions = ResearchRepository::where('approved', true)
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+        
+        // Get most viewed submissions (top 3)
+        $mostViewedSubmissions = ResearchRepository::where('approved', true)
+            ->orderBy('view_count', 'desc')
+            ->take(3)
+            ->get();
+        
+        // Get most popular submissions (based on view + download count, top 3)
+        $mostPopularSubmissions = ResearchRepository::where('approved', true)
+            ->orderByRaw('(view_count + download_count) DESC')
+            ->take(3)
+            ->get();
+        
+        return view('dashboard', compact(
+            'departments', 
+            'recentSubmissions', 
+            'mostViewedSubmissions', 
+            'mostPopularSubmissions'
+        ));
     }
     
     public function store(Request $request)
@@ -86,6 +120,9 @@ class ResearchController extends Controller
         // Find the research project by ID
         $project = ResearchRepository::findOrFail($id);
         
+        // Increment view count
+        $project->increment('view_count');
+        
         // Get related studies using the existing method
         $relatedStudies = $project->getRelatedStudies();
 
@@ -130,6 +167,9 @@ class ResearchController extends Controller
             'purposes' => $request->purpose,
             'ip_address' => $request->ip()
         ]);
+
+        // Increment download count
+        $project->increment('download_count');
 
         // Get the file path - use 'file' instead of 'file_path'
         $filePath = $project->file;

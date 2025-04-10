@@ -4,7 +4,48 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 @if($project)
                     <!-- Download Button at Top -->
-                    
+                    <div class="flex justify-between items-center mb-8">
+                        <a href="{{ route('research.history') }}" class="inline-flex items-center text-gray-600 hover:text-blue-600">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Back to Archives
+                        </a>
+                        
+                        <div class="flex items-center gap-4">
+                            <!-- Stats Display -->
+                            <div class="flex items-center gap-6 mr-4 bg-gray-50 px-4 py-2 rounded-lg">
+                                <div class="flex items-center text-gray-600">
+                                    <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    <span class="text-sm font-medium">{{ $project->view_count ?? 0 }} Views</span>
+                                </div>
+                                
+                                <div class="flex items-center text-gray-600">
+                                    <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    <span class="text-sm font-medium">{{ $project->download_count ?? 0 }} Downloads</span>
+                                </div>
+                            </div>
+
+                            <!-- Download Button -->
+                            <button data-download-trigger
+                                class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg 
+                                      shadow-sm transition-colors duration-300">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                                Download Paper
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="mb-6">
                         <h1 class="text-3xl font-bold mb-2">{{ $project->project_name }}</h1>
@@ -202,7 +243,7 @@
                             </div>
                         </div>
 
-                        <!-- Relat Studies -->
+                        <!-- Related Studies -->
                         <div class="mb-8">
                             <h2 class="text-xl font-semibold mb-3">Related Studies</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

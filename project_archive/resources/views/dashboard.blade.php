@@ -49,6 +49,193 @@
         </div>
     </div>
 
+    <!-- Featured Research Papers Section -->
+    <div class="bg-white py-16 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h2 class="text-3xl font-bold text-gray-900">Featured Research</h2>
+                <p class="mt-4 text-lg text-gray-600">Explore the most impactful submissions in our archive</p>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="mb-8 border-b border-gray-200" x-data="{ activeTab: 'recent' }">
+                <div class="flex flex-wrap -mb-px">
+                    <button @click="activeTab = 'recent'" :class="{'border-blue-500 text-blue-600': activeTab === 'recent'}" 
+                            class="mr-8 py-4 px-1 border-b-2 font-medium text-sm sm:text-base transition-colors duration-200 whitespace-nowrap">
+                        <i class="fas fa-clock mr-2"></i> Most Recent
+                    </button>
+                    <button @click="activeTab = 'viewed'" :class="{'border-blue-500 text-blue-600': activeTab === 'viewed'}" 
+                            class="mr-8 py-4 px-1 border-b-2 font-medium text-sm sm:text-base transition-colors duration-200 whitespace-nowrap">
+                        <i class="fas fa-eye mr-2"></i> Most Viewed
+                    </button>
+                    <button @click="activeTab = 'popular'" :class="{'border-blue-500 text-blue-600': activeTab === 'popular'}" 
+                            class="py-4 px-1 border-b-2 font-medium text-sm sm:text-base transition-colors duration-200 whitespace-nowrap">
+                        <i class="fas fa-star mr-2"></i> Most Popular
+                    </button>
+                </div>
+
+                <!-- Most Recent Tab -->
+                <div x-show="activeTab === 'recent'" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @foreach($recentSubmissions as $project)
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                             data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                            <div class="relative">
+                                <img src="{{ asset('storage/' . $project->banner_image) }}" 
+                                     alt="Project Banner"
+                                     class="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-300">
+                                <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                                    {{ $project->curriculum }}
+                                </div>
+                                <div class="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs">
+                                    New
+                                </div>
+                            </div>
+
+                            <div class="p-6">
+                                <h4 class="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+                                    {{ Str::limit($project->project_name, 60, '...') }}
+                                </h4>
+
+                                <div class="space-y-2 mb-4 text-gray-600 text-sm">
+                                    <p class="flex items-center">
+                                        <i class="fas fa-users w-5 text-blue-500"></i>
+                                        <span class="ml-2">{{ Str::limit($project->members, 40, '...') }}</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-calendar-alt w-5 text-blue-500"></i>
+                                        <span class="ml-2">{{ $project->created_at->format('F d, Y') }}</span>
+                                    </p>
+                                    <div class="flex justify-between mt-1">
+                                        <p class="flex items-center">
+                                            <i class="fas fa-eye w-5 text-gray-400"></i>
+                                            <span class="ml-2">{{ $project->view_count ?? 0 }}</span>
+                                        </p>
+                                        <p class="flex items-center">
+                                            <i class="fas fa-download w-5 text-gray-400"></i>
+                                            <span class="ml-2">{{ $project->download_count ?? 0 }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <a href="{{ route('research.show', $project->id) }}"
+                                   class="inline-flex items-center justify-center w-full bg-gray-50 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 font-medium">
+                                    View Details
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Most Viewed Tab -->
+                <div x-show="activeTab === 'viewed'" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @foreach($mostViewedSubmissions as $project)
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                             data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                            <div class="relative">
+                                <img src="{{ asset('storage/' . $project->banner_image) }}" 
+                                     alt="Project Banner"
+                                     class="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-300">
+                                <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                                    {{ $project->curriculum }}
+                                </div>
+                                <div class="absolute top-4 left-4 bg-purple-500 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                                    <i class="fas fa-eye mr-1"></i> {{ $project->view_count ?? 0 }}
+                                </div>
+                            </div>
+
+                            <div class="p-6">
+                                <h4 class="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+                                    {{ Str::limit($project->project_name, 60, '...') }}
+                                </h4>
+
+                                <div class="space-y-2 mb-4 text-gray-600 text-sm">
+                                    <p class="flex items-center">
+                                        <i class="fas fa-users w-5 text-blue-500"></i>
+                                        <span class="ml-2">{{ Str::limit($project->members, 40, '...') }}</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-building w-5 text-blue-500"></i>
+                                        <span class="ml-2">{{ $project->department }}</span>
+                                    </p>
+                                    <div class="flex justify-between mt-1">
+                                        <p class="flex items-center text-purple-600 font-semibold">
+                                            <i class="fas fa-eye w-5"></i>
+                                            <span class="ml-2">{{ $project->view_count ?? 0 }} views</span>
+                                        </p>
+                                        <p class="flex items-center">
+                                            <i class="fas fa-download w-5 text-gray-400"></i>
+                                            <span class="ml-2">{{ $project->download_count ?? 0 }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <a href="{{ route('research.show', $project->id) }}"
+                                   class="inline-flex items-center justify-center w-full bg-gray-50 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 font-medium">
+                                    View Details
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Most Popular Tab -->
+                <div x-show="activeTab === 'popular'" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @foreach($mostPopularSubmissions as $project)
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                             data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                            <div class="relative">
+                                <img src="{{ asset('storage/' . $project->banner_image) }}" 
+                                     alt="Project Banner"
+                                     class="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-300">
+                                <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                                    {{ $project->curriculum }}
+                                </div>
+                                <div class="absolute top-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                                    <i class="fas fa-star mr-1"></i> Trending
+                                </div>
+                            </div>
+
+                            <div class="p-6">
+                                <h4 class="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+                                    {{ Str::limit($project->project_name, 60, '...') }}
+                                </h4>
+
+                                <div class="space-y-2 mb-4 text-gray-600 text-sm">
+                                    <p class="flex items-center">
+                                        <i class="fas fa-users w-5 text-blue-500"></i>
+                                        <span class="ml-2">{{ Str::limit($project->members, 40, '...') }}</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-building w-5 text-blue-500"></i>
+                                        <span class="ml-2">{{ $project->department }}</span>
+                                    </p>
+                                    <div class="flex justify-between mt-1">
+                                        <p class="flex items-center">
+                                            <i class="fas fa-eye w-5 text-amber-500"></i>
+                                            <span class="ml-2">{{ $project->view_count ?? 0 }}</span>
+                                        </p>
+                                        <p class="flex items-center">
+                                            <i class="fas fa-download w-5 text-amber-500"></i>
+                                            <span class="ml-2">{{ $project->download_count ?? 0 }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <a href="{{ route('research.show', $project->id) }}"
+                                   class="inline-flex items-center justify-center w-full bg-gray-50 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 font-medium">
+                                    View Details
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- How It Works Section -->
     <div class="bg-white py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -212,6 +399,16 @@
                                             <i class="fas fa-calendar-alt w-5 text-blue-500"></i>
                                             <span class="ml-2">{{ $project->created_at->format('F d, Y') }}</span>
                                         </p>
+                                        <div class="flex justify-between mt-1">
+                                            <p class="flex items-center">
+                                                <i class="fas fa-eye w-5 text-gray-400"></i>
+                                                <span class="ml-2">{{ $project->view_count ?? 0 }}</span>
+                                            </p>
+                                            <p class="flex items-center">
+                                                <i class="fas fa-download w-5 text-gray-400"></i>
+                                                <span class="ml-2">{{ $project->download_count ?? 0 }}</span>
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <a href="{{ route('research.show', $project->id) }}"

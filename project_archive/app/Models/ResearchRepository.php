@@ -19,10 +19,20 @@ class ResearchRepository extends Model {
         'abstract',
         'file',
         'banner_image',
+        'user_id',
         'approved',
         'rejected',
         'rejection_reason',
-        'user_id'
+        'view_count',
+        'download_count'
+    ];
+
+    // Default values for new records
+    protected $attributes = [
+        'view_count' => 0,
+        'download_count' => 0,
+        'approved' => false,
+        'rejected' => false
     ];
 
     protected $casts = [
