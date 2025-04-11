@@ -44,10 +44,13 @@ class="border-b border-gray-100 z-50 w-full fixed top-0 transition-all duration-
 
                             <x-slot name="content">
                                 <x-dropdown-link :href="route('upload')" :active="request()->routeIs('upload')">
-                                    {{ __('Student Upload') }}
+                                    {{ __('Student Research') }}
                                 </x-dropdown-link>
                                 <x-dropdown-link :href="route('upload.faculty')" :active="request()->routeIs('upload.faculty')">
-                                    {{ __('Faculty Upload') }}
+                                    {{ __('Faculty Research') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('upload.dissertation')" :active="request()->routeIs('upload.dissertation')">
+                                    {{ __('Dissertation/Thesis') }}
                                 </x-dropdown-link>
                             </x-slot>
                         </x-dropdown>
@@ -188,13 +191,17 @@ class="border-b border-gray-100 z-50 w-full fixed top-0 transition-all duration-
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            <x-slot name="content">
-                                <x-dropdown-link :href="route('upload')" :active="request()->routeIs('upload')">
-                                    {{ __('Student Upload') }}
-                                </x-dropdown-link>
-                                <x-dropdown-link :href="route('upload.faculty')" :active="request()->routeIs('upload.faculty')">
-                                    {{ __('Faculty Upload') }}
-                                </x-dropdown-link>
+            <x-responsive-nav-link :href="route('upload')" :active="request()->routeIs('upload')">
+                {{ __('Student Research Upload') }}
+            </x-responsive-nav-link>
+            
+            <x-responsive-nav-link :href="route('upload.faculty')" :active="request()->routeIs('upload.faculty')">
+                {{ __('Faculty Research Upload') }}
+            </x-responsive-nav-link>
+            
+            <x-responsive-nav-link :href="route('upload.dissertation')" :active="request()->routeIs('upload.dissertation')">
+                {{ __('Dissertation/Thesis Upload') }}
+            </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('history')" :active="request()->routeIs('history')">
                 {{ __('History') }}

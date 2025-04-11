@@ -6,6 +6,8 @@ use App\Http\Controllers\ResearchRepositoryController;
 use App\Http\Controllers\FacultyResearchController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ResearchController;
+use App\Http\Controllers\DissertationController;
+use App\Http\Controllers\HistoryController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,10 +26,25 @@ Route::middleware('auth')->group(function () {
     Route::post('/research/faculty', [FacultyResearchController::class, 'store'])->name('research.faculty.store');
     Route::get('/research/history', [FacultyResearchController::class, 'history'])->name('research.history');
 
+    // Upload selection page
+    Route::get('/upload-select', function () {
+        return view('upload_select');
+    })->name('upload.select');
+
     // Upload routes
     Route::get('/upload', function () {
         return view('upload');
     })->name('upload');
+
+    // Dissertation upload routes
+    Route::get('/upload/dissertation', [DissertationController::class, 'create'])
+        ->name('upload.dissertation');
+    Route::post('/dissertation/store', [DissertationController::class, 'store'])
+        ->name('dissertation.store');
+    Route::get('/dissertation/history', [DissertationController::class, 'history'])
+        ->name('dissertation.history');
+    Route::get('/dissertation/{id}', [DissertationController::class, 'show'])
+        ->name('dissertation.show');
 
     // Faculty Research Routes
     Route::get('/faculty/research/history', [FacultyResearchController::class, 'history'])
@@ -40,6 +57,9 @@ Route::middleware('auth')->group(function () {
         ->name('faculty.research.update');
 
     Route::get('/research/{id}', [FacultyResearchController::class, 'show'])->name('research.show');
+
+    // Shared history view showing all submissions
+    Route::get('/history', [HistoryController::class, 'index'])->name('history');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -47,13 +67,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
         ->name('admin.research.index');
     Route::put('/research/{id}/status', [ResearchRepositoryController::class, 'updateStatus'])
         ->name('research.status.update');
-});
-
-Route::middleware(['auth', 'faculty'])->group(function () {
-    Route::post('/research/upload', [ResearchController::class, 'store'])
-        ->name('research.faculty.store');
-    Route::get('/research/history', [ResearchController::class, 'history'])
-        ->name('research.history');
 });
 
 // Store uploaded research
@@ -70,9 +83,6 @@ Route::get('/research/{id}', [ResearchRepositoryController::class, 'show'])->nam
 Route::get('/research/edit/{id}', [ResearchRepositoryController::class, 'edit'])->name('research.edit');
 Route::post('/research/update/{id}', [ResearchRepositoryController::class, 'update'])->name('research.update');
 Route::put('/research/update/{id}', [ResearchRepositoryController::class, 'update'])->name('research.update');
-Route::get('/history', [ResearchRepositoryController::class, 'history'])->name('history');
-
-Route::get('/dashboard', [ResearchRepositoryController::class, 'dashboard'])->name('dashboard');
 
 Route::get('/search-recommendations', [App\Http\Controllers\ResearchRepositoryController::class, 'getSearchRecommendations'])->name('search.recommendations');
 
