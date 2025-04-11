@@ -100,4 +100,9 @@ Route::get('/check-research/{name}', function($name) {
     ]);
 });
 Route::get('department/{department}', [DepartmentController::class, 'show'])->name('department.show');
+
+// Add this to your web.php routes file
+Route::get('/dissertations', [App\Http\Controllers\DissertationController::class, 'index'])
+    ->name('dissertation.index');
+
 require __DIR__.'/auth.php';

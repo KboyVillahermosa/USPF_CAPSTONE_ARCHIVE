@@ -1,1 +1,3 @@
-@include('vendor.backpack.crud.buttons.approve_reject_scripts')
+@include('vendor.backpack.crud.custom-script')
+
+<!-- YOUR CUSTOM SCRIPTS HERE -->

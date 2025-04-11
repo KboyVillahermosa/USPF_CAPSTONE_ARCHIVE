@@ -357,6 +357,178 @@
         </div>
     </div>
 
+    <!-- NEW SECTION: Dissertations & Theses -->
+    <div class="py-12 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h2 class="text-3xl font-bold text-gray-900">Academic Works</h2>
+                <p class="mt-4 text-lg text-gray-600">Explore our collection of dissertations and theses</p>
+            </div>
+            
+            <!-- Academic Works Tabs -->
+            <div class="mb-8 border-b border-gray-200" x-data="{ activeAcademicTab: 'dissertations' }">
+                <div class="flex flex-wrap -mb-px">
+                    <button @click="activeAcademicTab = 'dissertations'" 
+                            :class="{'border-blue-500 text-blue-600': activeAcademicTab === 'dissertations'}" 
+                            class="mr-8 py-4 px-1 border-b-2 font-medium text-sm sm:text-base transition-colors duration-200 whitespace-nowrap">
+                        <i class="fas fa-book mr-2"></i> Dissertations
+                    </button>
+                    <button @click="activeAcademicTab = 'theses'" 
+                            :class="{'border-blue-500 text-blue-600': activeAcademicTab === 'theses'}" 
+                            class="py-4 px-1 border-b-2 font-medium text-sm sm:text-base transition-colors duration-200 whitespace-nowrap">
+                        <i class="fas fa-scroll mr-2"></i> Theses
+                    </button>
+                </div>
+                
+                <!-- Dissertations Tab -->
+                <div x-show="activeAcademicTab === 'dissertations'" class="mt-6">
+                    @php
+                        $dissertationsByDepartment = App\Models\Dissertation::where('type', 'dissertation')
+                                                    ->where('status', 'approved')
+                                                    ->get()
+                                                    ->groupBy('department');
+                    @endphp
+                    
+                    @forelse($dissertationsByDepartment as $department => $dissertations)
+                        <div class="mb-12" data-aos="fade-up">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-2xl font-bold text-gray-900">{{ $department }}</h3>
+                                <a href="{{ route('dissertation.index', ['department' => $department, 'type' => 'dissertation']) }}" 
+                                   class="text-blue-500 hover:text-blue-600 font-medium">
+                                    View All <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                @foreach($dissertations->take(3) as $dissertation)
+                                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                                         data-aos="fade-up"
+                                         data-aos-delay="{{ $loop->index * 100 }}">
+                                        <div class="relative">
+                                            <div class="w-full h-48 bg-gradient-to-r from-blue-600 to-indigo-800 flex items-center justify-center">
+                                                <i class="fas fa-book text-6xl text-white opacity-30"></i>
+                                            </div>
+                                            <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                                                Dissertation
+                                            </div>
+                                            <div class="absolute top-4 left-4 bg-indigo-500 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                                                {{ $dissertation->year }}
+                                            </div>
+                                        </div>
+
+                                        <div class="p-6">
+                                            <h4 class="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+                                                {{ Str::limit($dissertation->title, 60, '...') }}
+                                            </h4>
+
+                                            <div class="space-y-2 mb-4 text-gray-600 text-sm">
+                                                <p class="flex items-center">
+                                                    <i class="fas fa-user w-5 text-blue-500"></i>
+                                                    <span class="ml-2">{{ $dissertation->author }}</span>
+                                                </p>
+                                                <p class="flex items-center">
+                                                    <i class="fas fa-graduation-cap w-5 text-blue-500"></i>
+                                                    <span class="ml-2">{{ $dissertation->department }}</span>
+                                                </p>
+                                                <p class="flex items-center">
+                                                    <i class="fas fa-tags w-5 text-blue-500"></i>
+                                                    <span class="ml-2">{{ Str::limit($dissertation->keywords, 40, '...') }}</span>
+                                                </p>
+                                            </div>
+
+                                            <a href="{{ route('dissertation.show', $dissertation->id) }}"
+                                               class="inline-flex items-center justify-center w-full bg-gray-50 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 font-medium">
+                                                View Details
+                                                <i class="fas fa-arrow-right ml-2"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-12">
+                            <i class="fas fa-book text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">No dissertations available at this time.</p>
+                        </div>
+                    @endforelse
+                </div>
+                
+                <!-- Theses Tab -->
+                <div x-show="activeAcademicTab === 'theses'" class="mt-6">
+                    @php
+                        $thesesByDepartment = App\Models\Dissertation::where('type', 'thesis')
+                                             ->where('status', 'approved')
+                                             ->get()
+                                             ->groupBy('department');
+                    @endphp
+                    
+                    @forelse($thesesByDepartment as $department => $theses)
+                        <div class="mb-12" data-aos="fade-up">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-2xl font-bold text-gray-900">{{ $department }}</h3>
+                                <a href="{{ route('dissertation.index', ['department' => $department, 'type' => 'thesis']) }}" 
+                                   class="text-blue-500 hover:text-blue-600 font-medium">
+                                    View All <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                @foreach($theses->take(3) as $thesis)
+                                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                                         data-aos="fade-up"
+                                         data-aos-delay="{{ $loop->index * 100 }}">
+                                        <div class="relative">
+                                            <div class="w-full h-48 bg-gradient-to-r from-green-600 to-teal-800 flex items-center justify-center">
+                                                <i class="fas fa-scroll text-6xl text-white opacity-30"></i>
+                                            </div>
+                                            <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                                                Thesis
+                                            </div>
+                                            <div class="absolute top-4 left-4 bg-teal-500 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                                                {{ $thesis->year }}
+                                            </div>
+                                        </div>
+
+                                        <div class="p-6">
+                                            <h4 class="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+                                                {{ Str::limit($thesis->title, 60, '...') }}
+                                            </h4>
+
+                                            <div class="space-y-2 mb-4 text-gray-600 text-sm">
+                                                <p class="flex items-center">
+                                                    <i class="fas fa-user w-5 text-green-500"></i>
+                                                    <span class="ml-2">{{ $thesis->author }}</span>
+                                                </p>
+                                                <p class="flex items-center">
+                                                    <i class="fas fa-graduation-cap w-5 text-green-500"></i>
+                                                    <span class="ml-2">{{ $thesis->department }}</span>
+                                                </p>
+                                                <p class="flex items-center">
+                                                    <i class="fas fa-tags w-5 text-green-500"></i>
+                                                    <span class="ml-2">{{ Str::limit($thesis->keywords, 40, '...') }}</span>
+                                                </p>
+                                            </div>
+
+                                            <a href="{{ route('dissertation.show', $thesis->id) }}"
+                                               class="inline-flex items-center justify-center w-full bg-gray-50 text-green-500 px-4 py-2 rounded-lg hover:bg-green-500 hover:text-white transition-colors duration-300 font-medium">
+                                                View Details
+                                                <i class="fas fa-arrow-right ml-2"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-12">
+                            <i class="fas fa-scroll text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">No theses available at this time.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Research Papers Grid -->
     <div class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

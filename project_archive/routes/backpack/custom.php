@@ -18,6 +18,18 @@ Route::group([
 ], function () { // custom admin routes
     Route::crud('user', 'UserCrudController');
     Route::crud('research-repository', 'ResearchRepositoryCrudController');
+    Route::crud('dissertation', 'DissertationCrudController');
+    Route::crud('thesis', 'ThesisCrudController');
+
+    // Dissertation approval/rejection routes
+    Route::get('dissertation/{id}/approve', 'DissertationCrudController@approve');
+    Route::get('dissertation/{id}/reject', 'DissertationCrudController@rejectForm');
+    Route::post('dissertation/{id}/reject', 'DissertationCrudController@rejectSubmit');
+    
+    // Thesis approval/rejection routes
+    Route::get('thesis/{id}/approve', 'ThesisCrudController@approve');
+    Route::get('thesis/{id}/reject', 'ThesisCrudController@rejectForm');
+    Route::post('thesis/{id}/reject', 'ThesisCrudController@rejectSubmit');
 }); // this should be the absolute last line of this file
 
 /**

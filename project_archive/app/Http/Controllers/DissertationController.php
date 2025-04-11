@@ -64,4 +64,41 @@ class DissertationController extends Controller
         
         return view('dissertation.show', compact('dissertation'));
     }
+
+    public function history()
+    {
+        // Get user's dissertations and theses
+        $dissertations = Dissertation::where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Redirect to the main history page with the dissertation tab active
+        return redirect()->route('history')
+            ->with('activeTab', 'dissertation');
+    }
+
+    public function index(Request $request)
+    {
+        $query = Dissertation::query();
+        
+        // Apply filters if provided
+        if ($request->has('department')) {
+            $query->where('department', $request->department);
+        }
+        
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+        
+        // Show only approved items
+        $query->where('status', 'approved');
+        
+        // Order by latest
+        $query->latest();
+        
+        // Get paginated results
+        $dissertations = $query->paginate(12);
+        
+        return view('dissertation.index', compact('dissertations'));
+    }
 }

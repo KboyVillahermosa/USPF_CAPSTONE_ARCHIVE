@@ -3,8 +3,44 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 @if($project)
-                    <!-- Download Button at Top -->
-                    
+                    <!-- Download Button at Top with Stats -->
+                    <div class="mb-6 flex justify-between items-center">
+                        <div class="flex items-center space-x-4">
+                            <button data-download-trigger class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                Download Paper
+                            </button>
+                            
+                            <div class="flex items-center space-x-4 text-gray-600">
+                                <!-- Views Counter -->
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <span>{{ number_format($project->view_count ?? 0) }} Views</span>
+                                </div>
+                                
+                                <!-- Downloads Counter -->
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    </svg>
+                                    <span>{{ number_format($project->download_count ?? 0) }} Downloads</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Back Button -->
+                        <a href="{{ url()->previous() }}" class="text-gray-600 hover:text-gray-800 flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Back
+                        </a>
+                    </div>
 
                     <div class="mb-6">
                         <h1 class="text-3xl font-bold mb-2">{{ $project->project_name }}</h1>
@@ -34,6 +70,41 @@
                                          alt="Project Banner"
                                          class="w-full h-48 object-cover rounded-lg">
                                 @endif
+                            </div>
+                        </div>
+
+                        <!-- Stats Bar -->
+                        <div class="bg-gray-50 p-4 rounded-lg mb-6 flex flex-wrap justify-between items-center">
+                            <div class="flex items-center space-x-6">
+                                <!-- Views Counter (Detailed) -->
+                                <div class="flex flex-col items-center">
+                                    <div class="text-2xl font-bold text-blue-600">{{ number_format($project->view_count ?? 0) }}</div>
+                                    <div class="text-sm text-gray-500">Total Views</div>
+                                </div>
+                                
+                                <!-- Downloads Counter (Detailed) -->
+                                <div class="flex flex-col items-center">
+                                    <div class="text-2xl font-bold text-green-600">{{ number_format($project->download_count ?? 0) }}</div>
+                                    <div class="text-sm text-gray-500">Total Downloads</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4">
+                                <!-- Share Button (Optional) -->
+                                <button onclick="copyToClipboard()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-lg flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                    </svg>
+                                    Share
+                                </button>
+                                
+                                <!-- Download Button (Alternative placement) -->
+                                <button data-download-trigger class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    </svg>
+                                    Download
+                                </button>
                             </div>
                         </div>
 
@@ -202,7 +273,7 @@
                             </div>
                         </div>
 
-                        <!-- Relat Studies -->
+                        <!-- Related Studies -->
                         <div class="mb-8">
                             <h2 class="text-xl font-semibold mb-3">Related Studies</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -482,6 +553,16 @@
             // Initialize zoom
             updateZoom();
         });
+
+        // Copy share URL to clipboard
+        function copyToClipboard() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied to clipboard!');
+            }, (err) => {
+                console.error('Could not copy text: ', err);
+            });
+        }
     </script>
 
     <!-- Add these styles to your existing styles or in a <style> tag -->
