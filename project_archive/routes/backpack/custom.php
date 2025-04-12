@@ -30,6 +30,10 @@ Route::group([
     Route::get('thesis/{id}/approve', 'ThesisCrudController@approve');
     Route::get('thesis/{id}/reject', 'ThesisCrudController@rejectForm');
     Route::post('thesis/{id}/reject', 'ThesisCrudController@rejectSubmit');
+
+    // Batch import users
+    Route::get('user/batch-import', [App\Http\Controllers\Admin\UserCrudController::class, 'batchImportForm'])->name('user.batch.import.form');
+    Route::post('user/batch-import', [App\Http\Controllers\Admin\UserCrudController::class, 'batchImport'])->name('user.batch.import');
 }); // this should be the absolute last line of this file
 
 /**

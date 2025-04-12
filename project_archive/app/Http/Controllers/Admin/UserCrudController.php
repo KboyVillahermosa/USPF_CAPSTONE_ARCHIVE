@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Admin;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Http\Requests\UserRequest;
+use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
+use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
+use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
+use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class UserCrudController
@@ -31,6 +36,9 @@ class UserCrudController extends CrudController
         CRUD::setModel(\App\Models\User::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
         CRUD::setEntityNameStrings('user', 'users');
+        
+        // Call the batch import setup
+        $this->setupBatchImportOperation();
 
         // Email field
         $this->crud->addField([
@@ -180,6 +188,136 @@ class UserCrudController extends CrudController
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
             \Alert::error('The email address is already in use.')->flash();
             return redirect()->back()->withInput();
+        }
+    }
+
+    /**
+     * Define what happens when the Batch Import operation is loaded.
+     * 
+     * @return void
+     */
+    protected function setupBatchImportOperation()
+    {
+        // Add a button for batch import in the top of the list view
+        $this->crud->operation('batchImport', function () {
+            $this->crud->loadDefaultOperationSettingsFromConfig();
+        });
+        
+        $this->crud->operation(['list'], function () {
+            // Add a button in the top of the list view
+            $this->crud->addButton('top', 'batch_import', 'view', 'vendor.backpack.crud.buttons.batch_import');
+        });
+    }
+
+    /**
+     * Show the batch import form
+     */
+    public function batchImportForm()
+    {
+        $this->data['crud'] = $this->crud;
+        $this->data['title'] = CRUD::getTitle() ?? 'Batch Import Users';
+        
+        return view('admin.users.batch_import', $this->data);
+    }
+
+    /**
+     * Process the CSV import
+     */
+    public function batchImport()
+    {
+        $request = request();
+        
+        // Validate the uploaded file
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:10000',
+        ]);
+        
+        // Get the file
+        $file = $request->file('csv_file');
+        
+        // Process the CSV
+        $path = $file->getRealPath();
+        $data = array_map('str_getcsv', file($path));
+        
+        // Get headers
+        $headers = array_shift($data);
+        
+        // Required fields
+        $requiredFields = ['name', 'email', 'role', 'department'];
+        
+        // Validate headers
+        foreach ($requiredFields as $field) {
+            if (!in_array($field, $headers)) {
+                \Alert::error("Missing required column: $field")->flash();
+                return redirect()->back();
+            }
+        }
+        
+        // Count for stats
+        $created = 0;
+        $errors = 0;
+        $error_messages = [];
+        
+        // Process each row
+        foreach ($data as $row) {
+            $user_data = array_combine($headers, $row);
+            
+            // Generate a random password if not provided
+            if (!isset($user_data['password']) || empty($user_data['password'])) {
+                $user_data['password'] = \Illuminate\Support\Str::random(10);
+            }
+            
+            // Hash password
+            $user_data['password'] = \Hash::make($user_data['password']);
+            
+            try {
+                // Create the user
+                \App\Models\User::create($user_data);
+                $created++;
+            } catch (\Exception $e) {
+                $errors++;
+                $error_messages[] = "Row " . ($created + $errors) . ": " . $e->getMessage();
+            }
+        }
+        
+        // Flash appropriate message
+        if ($created > 0) {
+            \Alert::success("Successfully created $created users.")->flash();
+        }
+        
+        if ($errors > 0) {
+            \Alert::error("Failed to create $errors users. Check the details below.")->flash();
+            foreach ($error_messages as $message) {
+                \Alert::error($message)->flash();
+            }
+        }
+        
+        return redirect(backpack_url('user'));
+    }
+
+    public function destroy($id)
+    {
+        // Begin a transaction
+        DB::beginTransaction();
+        
+        try {
+            // First delete related dissertations
+            DB::table('dissertations')->where('user_id', $id)->delete();
+            
+            // If you have other related tables, delete from those too
+            // DB::table('other_table')->where('user_id', $id)->delete();
+            
+            // Then delete the user
+            $this->crud->delete($id);
+            
+            DB::commit();
+            
+            return $this->crud->performDeleteResponse();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Failed to delete user: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
