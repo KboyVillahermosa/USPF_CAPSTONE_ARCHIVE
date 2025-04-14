@@ -13,9 +13,19 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Add this style to remove any unwanted top space -->
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow-x: hidden;
+            }
+        </style>
     </head>
-    <body>
-        <div class="font-sans antialiased">
+    <body class="font-sans text-gray-900 antialiased">
+        <div>
             {{ $slot }}
         </div>
     </body>
