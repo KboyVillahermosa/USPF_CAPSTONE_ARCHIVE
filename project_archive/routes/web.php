@@ -45,6 +45,8 @@ Route::middleware('auth')->group(function () {
         ->name('dissertation.history');
     Route::get('/dissertation/{id}', [DissertationController::class, 'show'])
         ->name('dissertation.show');
+    Route::post('/dissertation/{id}/download', [DissertationController::class, 'download'])
+        ->name('dissertation.download');
 
     // Faculty Research Routes
     Route::get('/faculty/research/history', [FacultyResearchController::class, 'history'])
@@ -104,5 +106,8 @@ Route::get('department/{department}', [DepartmentController::class, 'show'])->na
 // Add this to your web.php routes file
 Route::get('/dissertations', [App\Http\Controllers\DissertationController::class, 'index'])
     ->name('dissertation.index');
+
+// Add this to your routes/web.php file
+Route::get('/research', [ResearchRepositoryController::class, 'index'])->name('research.index');
 
 require __DIR__.'/auth.php';

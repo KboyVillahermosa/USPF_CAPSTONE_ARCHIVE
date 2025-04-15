@@ -529,6 +529,315 @@
         </div>
     </div>
 
+    <!-- Overall Most Popular Section -->
+    <div class="py-16 bg-gradient-to-b from-gray-50 to-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <h2 class="text-3xl font-bold text-gray-900">Overall Most Popular Resources</h2>
+                <p class="mt-4 text-lg text-gray-600">Trending across all publication types in our repository</p>
+            </div>
+            
+            <!-- Popularity Tabs -->
+            <div class="mb-8 border-b border-gray-200" x-data="{ activePopularTab: 'all' }">
+                <div class="flex flex-wrap -mb-px">
+                    <button @click="activePopularTab = 'all'" 
+                            :class="{'border-blue-500 text-blue-600': activePopularTab === 'all'}" 
+                            class="mr-8 py-4 px-1 border-b-2 font-medium text-sm sm:text-base transition-colors duration-200 whitespace-nowrap">
+                        <i class="fas fa-fire-alt mr-2"></i> Most Popular Overall
+                    </button>
+                    <button @click="activePopularTab = 'research'" 
+                            :class="{'border-blue-500 text-blue-600': activePopularTab === 'research'}" 
+                            class="mr-8 py-4 px-1 border-b-2 font-medium text-sm sm:text-base transition-colors duration-200 whitespace-nowrap">
+                        <i class="fas fa-flask mr-2"></i> Research Papers
+                    </button>
+                    <button @click="activePopularTab = 'academic'" 
+                            :class="{'border-blue-500 text-blue-600': activePopularTab === 'academic'}" 
+                            class="py-4 px-1 border-b-2 font-medium text-sm sm:text-base transition-colors duration-200 whitespace-nowrap">
+                        <i class="fas fa-graduation-cap mr-2"></i> Academic Works
+                    </button>
+                </div>
+                
+                <!-- All Resources Tab -->
+                <div x-show="activePopularTab === 'all'" class="mt-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        @php
+                            // Combine and sort all resources by popularity (view_count + download_count)
+                            $researchProjects = $mostPopularSubmissions ?? collect();
+                            
+                            $dissertations = App\Models\Dissertation::where('status', 'approved')
+                                ->whereNotNull('view_count')
+                                ->whereNotNull('download_count')
+                                ->get();
+                                
+                            $combinedResources = collect();
+                            
+                            // Add research with type indicator
+                            foreach($researchProjects as $project) {
+                                $combinedResources->push([
+                                    'id' => $project->id,
+                                    'title' => $project->project_name,
+                                    'type' => 'research',
+                                    'subtype' => null,
+                                    'author' => $project->members,
+                                    'department' => $project->department,
+                                    'date' => $project->created_at,
+                                    'view_count' => $project->view_count ?? 0,
+                                    'download_count' => $project->download_count ?? 0,
+                                    'popularity_score' => ($project->view_count ?? 0) + ($project->download_count ?? 0) * 2,
+                                    'image' => $project->banner_image,
+                                    'year' => $project->created_at->format('Y')
+                                ]);
+                            }
+                            
+                            // Add dissertations with type indicator
+                            foreach($dissertations as $dissertation) {
+                                $combinedResources->push([
+                                    'id' => $dissertation->id,
+                                    'title' => $dissertation->title,
+                                    'type' => 'academic',
+                                    'subtype' => $dissertation->type,
+                                    'author' => $dissertation->author,
+                                    'department' => $dissertation->department,
+                                    'date' => $dissertation->created_at,
+                                    'view_count' => $dissertation->view_count ?? 0,
+                                    'download_count' => $dissertation->download_count ?? 0,
+                                    'popularity_score' => ($dissertation->view_count ?? 0) + ($dissertation->download_count ?? 0) * 2,
+                                    'image' => null,
+                                    'year' => $dissertation->year
+                                ]);
+                            }
+                            
+                            // Sort by popularity score
+                            $topResources = $combinedResources->sortByDesc('popularity_score')->take(8);
+                        @endphp
+                        
+                        @forelse($topResources as $resource)
+                            <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                                 data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">
+                                <div class="relative">
+                                    @if($resource['type'] === 'research')
+                                        <img src="{{ asset('storage/' . $resource['image']) }}" 
+                                             alt="Resource Banner"
+                                             class="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-300">
+                                        <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                                            Research
+                                        </div>
+                                    @elseif($resource['subtype'] === 'dissertation')
+                                        <div class="w-full h-48 bg-gradient-to-r from-blue-600 to-indigo-800 flex items-center justify-center">
+                                            <i class="fas fa-book text-6xl text-white opacity-30"></i>
+                                        </div>
+                                        <div class="absolute top-4 right-4 bg-indigo-500 text-white px-3 py-1 rounded-full text-sm">
+                                            Dissertation
+                                        </div>
+                                    @else
+                                        <div class="w-full h-48 bg-gradient-to-r from-green-600 to-teal-800 flex items-center justify-center">
+                                            <i class="fas fa-scroll text-6xl text-white opacity-30"></i>
+                                        </div>
+                                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                                            Thesis
+                                        </div>
+                                    @endif
+                                    
+                                    <div class="absolute top-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                                        <i class="fas fa-fire mr-1"></i> Popular
+                                    </div>
+                                </div>
+
+                                <div class="p-6">
+                                    <h4 class="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+                                        {{ Str::limit($resource['title'], 60, '...') }}
+                                    </h4>
+
+                                    <div class="space-y-2 mb-4 text-gray-600 text-sm">
+                                        <p class="flex items-center">
+                                            <i class="fas fa-{{ $resource['type'] === 'research' ? 'users' : 'user' }} w-5 text-blue-500"></i>
+                                            <span class="ml-2 line-clamp-1">{{ Str::limit($resource['author'], 40, '...') }}</span>
+                                        </p>
+                                        <p class="flex items-center">
+                                            <i class="fas fa-building w-5 text-blue-500"></i>
+                                            <span class="ml-2">{{ $resource['department'] }}</span>
+                                        </p>
+                                        <div class="flex justify-between mt-2">
+                                            <p class="flex items-center">
+                                                <i class="fas fa-eye w-5 text-amber-500"></i>
+                                                <span class="ml-2">{{ $resource['view_count'] }}</span>
+                                            </p>
+                                            <p class="flex items-center">
+                                                <i class="fas fa-download w-5 text-amber-500"></i>
+                                                <span class="ml-2">{{ $resource['download_count'] }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <a href="{{ route($resource['type'] === 'research' ? 'research.show' : 'dissertation.show', $resource['id']) }}"
+                                       class="inline-flex items-center justify-center w-full bg-gray-50 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 font-medium">
+                                        View Details
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-span-4 text-center py-12">
+                                <i class="fas fa-chart-line text-4xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500">No popular resources found at this time.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+                
+                <!-- Research Papers Tab -->
+                <div x-show="activePopularTab === 'research'" class="mt-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        @foreach($mostPopularSubmissions->take(8) as $project)
+                            <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                                 data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">
+                                <div class="relative">
+                                    <img src="{{ asset('storage/' . $project->banner_image) }}" 
+                                         alt="Project Banner"
+                                         class="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm">
+                                        {{ $project->curriculum }}
+                                    </div>
+                                    <div class="absolute top-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                                        <i class="fas fa-fire mr-1"></i> Trending
+                                    </div>
+                                </div>
+
+                                <div class="p-6">
+                                    <h4 class="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+                                        {{ Str::limit($project->project_name, 60, '...') }}
+                                    </h4>
+
+                                    <div class="space-y-2 mb-4 text-gray-600 text-sm">
+                                        <p class="flex items-center">
+                                            <i class="fas fa-users w-5 text-blue-500"></i>
+                                            <span class="ml-2 line-clamp-1">{{ Str::limit($project->members, 40, '...') }}</span>
+                                        </p>
+                                        <p class="flex items-center">
+                                            <i class="fas fa-building w-5 text-blue-500"></i>
+                                            <span class="ml-2">{{ $project->department }}</span>
+                                        </p>
+                                        <div class="flex justify-between mt-2">
+                                            <p class="flex items-center text-amber-600 font-medium">
+                                                <i class="fas fa-eye w-5"></i>
+                                                <span class="ml-2">{{ $project->view_count ?? 0 }}</span>
+                                            </p>
+                                            <p class="flex items-center text-amber-600 font-medium">
+                                                <i class="fas fa-download w-5"></i>
+                                                <span class="ml-2">{{ $project->download_count ?? 0 }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <a href="{{ route('research.show', $project->id) }}"
+                                       class="inline-flex items-center justify-center w-full bg-gray-50 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition-colors duration-300 font-medium">
+                                        View Details
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                
+                <!-- Academic Works Tab -->
+                <div x-show="activePopularTab === 'academic'" class="mt-6">
+                    @php
+                        // Get popular dissertations and theses
+                        $popularAcademic = App\Models\Dissertation::where('status', 'approved')
+                            ->whereNotNull('view_count')
+                            ->whereNotNull('download_count')
+                            ->orderByRaw('(view_count + download_count * 2) DESC')
+                            ->take(8)
+                            ->get();
+                    @endphp
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        @forelse($popularAcademic as $academic)
+                            <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                                 data-aos="fade-up" data-aos-delay="{{ $loop->index * 50 }}">
+                                <div class="relative">
+                                    @if($academic->type === 'dissertation')
+                                        <div class="w-full h-48 bg-gradient-to-r from-blue-600 to-indigo-800 flex items-center justify-center">
+                                            <i class="fas fa-book text-6xl text-white opacity-30"></i>
+                                        </div>
+                                        <div class="absolute top-4 right-4 bg-indigo-500 text-white px-3 py-1 rounded-full text-sm">
+                                            Dissertation
+                                        </div>
+                                    @else
+                                        <div class="w-full h-48 bg-gradient-to-r from-green-600 to-teal-800 flex items-center justify-center">
+                                            <i class="fas fa-scroll text-6xl text-white opacity-30"></i>
+                                        </div>
+                                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                                            Thesis
+                                        </div>
+                                    @endif
+                                    
+                                    <div class="absolute top-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                                        <i class="fas fa-fire mr-1"></i> Popular
+                                    </div>
+                                </div>
+
+                                <div class="p-6">
+                                    <h4 class="font-bold text-xl mb-3 text-gray-900 line-clamp-2">
+                                        {{ Str::limit($academic->title, 60, '...') }}
+                                    </h4>
+
+                                    <div class="space-y-2 mb-4 text-gray-600 text-sm">
+                                        <p class="flex items-center">
+                                            <i class="fas fa-user w-5 text-{{ $academic->type === 'dissertation' ? 'indigo' : 'green' }}-500"></i>
+                                            <span class="ml-2">{{ $academic->author }}</span>
+                                        </p>
+                                        <p class="flex items-center">
+                                            <i class="fas fa-graduation-cap w-5 text-{{ $academic->type === 'dissertation' ? 'indigo' : 'green' }}-500"></i>
+                                            <span class="ml-2">{{ $academic->department }}</span>
+                                        </p>
+                                        <p class="flex items-center">
+                                            <i class="fas fa-calendar w-5 text-{{ $academic->type === 'dissertation' ? 'indigo' : 'green' }}-500"></i>
+                                            <span class="ml-2">{{ $academic->year }}</span>
+                                        </p>
+                                        <div class="flex justify-between mt-2">
+                                            <p class="flex items-center text-amber-600 font-medium">
+                                                <i class="fas fa-eye w-5"></i>
+                                                <span class="ml-2">{{ $academic->view_count }}</span>
+                                            </p>
+                                            <p class="flex items-center text-amber-600 font-medium">
+                                                <i class="fas fa-download w-5"></i>
+                                                <span class="ml-2">{{ $academic->download_count }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <a href="{{ route('dissertation.show', $academic->id) }}"
+                                       class="inline-flex items-center justify-center w-full bg-gray-50 text-{{ $academic->type === 'dissertation' ? 'indigo' : 'green' }}-500 px-4 py-2 rounded-lg hover:bg-{{ $academic->type === 'dissertation' ? 'indigo' : 'green' }}-500 hover:text-white transition-colors duration-300 font-medium">
+                                        View Details
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-span-4 text-center py-12">
+                                <i class="fas fa-graduation-cap text-4xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500">No popular academic works found at this time.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- View All Resources Button -->
+        <div class="text-center mt-8">
+            <a href="{{ route('dissertation.index') }}" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-8 transition-colors">
+                Browse All Resources
+                <svg class="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
+
     <!-- Research Papers Grid -->
     <div class="py-12 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -595,6 +904,7 @@
                 </div>
             @endforeach
         </div>
+    
     </div>
 
     @include('layouts.footer')

@@ -62,7 +62,21 @@ class DissertationController extends Controller
             abort(403, 'Unauthorized action.');
         }
         
-        return view('dissertation.show', compact('dissertation'));
+        // Check if the file exists and pass this information to the view
+        $fileExists = Storage::disk('public')->exists($dissertation->file_path);
+        
+        // Debug information - can be removed in production
+        $storagePath = storage_path('app/public/' . $dissertation->file_path);
+        $publicUrl = asset('storage/' . $dissertation->file_path);
+        
+        // Only try to increment if the column exists in the database
+        try {
+            $dissertation->increment('view_count');
+        } catch (\Exception $e) {
+            // Silently fail if the column doesn't exist yet
+        }
+        
+        return view('dissertation.show', compact('dissertation', 'fileExists', 'storagePath', 'publicUrl'));
     }
 
     public function history()
@@ -79,26 +93,133 @@ class DissertationController extends Controller
 
     public function index(Request $request)
     {
-        $query = Dissertation::query();
+        $category = $request->get('category', 'dissertations');
         
-        // Apply filters if provided
-        if ($request->has('department')) {
-            $query->where('department', $request->department);
+        // Get dissertations
+        if ($category === 'dissertations' || $category === 'all') {
+            $query = Dissertation::where('status', 'approved');
+            
+            // Apply filters
+            if ($request->filled('type')) {
+                $query->where('type', $request->type);
+            }
+            
+            if ($request->filled('department')) {
+                $query->where('department', $request->department);
+            }
+            
+            if ($request->filled('year')) {
+                $query->where('year', $request->year);
+            }
+            
+            if ($request->filled('search')) {
+                $search = '%' . $request->search . '%';
+                $query->where(function($q) use ($search) {
+                    $q->where('title', 'like', $search)
+                      ->orWhere('author', 'like', $search)
+                      ->orWhere('keywords', 'like', $search);
+                });
+            }
+            
+            $dissertations = $query->orderBy('created_at', 'desc')->paginate(12);
+            
+            if ($category === 'dissertations') {
+                return view('dissertation.index', compact('dissertations'));
+            }
         }
         
-        if ($request->has('type')) {
-            $query->where('type', $request->type);
+        // Get research papers
+        if ($category === 'student' || $category === 'faculty' || $category === 'all') {
+            $query = \App\Models\ResearchRepository::where('approved', 1);
+            
+            // Filter by type
+            if ($category === 'faculty') {
+                $query->where('is_faculty', 1);
+            } elseif ($category === 'student') {
+                $query->where('is_faculty', 0);
+            }
+            
+            // Apply filters
+            if ($request->filled('department')) {
+                $query->where('department', $request->department);
+            }
+            
+            if ($request->filled('curriculum')) {
+                $query->where('curriculum', $request->curriculum);
+            }
+            
+            if ($request->filled('year')) {
+                $query->whereYear('created_at', $request->year);
+            }
+            
+            if ($request->filled('search')) {
+                $search = '%' . $request->search . '%';
+                $query->where(function($q) use ($search) {
+                    $q->where('project_name', 'like', $search)
+                      ->orWhere('members', 'like', $search)
+                      ->orWhere('keywords', 'like', $search);
+                });
+            }
+            
+            $projects = $query->orderBy('created_at', 'desc')->paginate(12);
+            
+            if ($category === 'student' || $category === 'faculty') {
+                return view('dissertation.index', compact('projects'));
+            }
         }
         
-        // Show only approved items
-        $query->where('status', 'approved');
+        // For 'all' category, we need both types
+        if ($category === 'all') {
+            // We already have both $dissertations and $projects from above
+            return view('dissertation.index', compact('dissertations', 'projects'));
+        }
         
-        // Order by latest
-        $query->latest();
+        // Default fallback
+        return view('dissertation.index', ['dissertations' => collect()]);
+    }
+
+    /**
+     * Handle the download request for a dissertation.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function download(Request $request, $id)
+    {
+        // Find the dissertation
+        $dissertation = Dissertation::findOrFail($id);
         
-        // Get paginated results
-        $dissertations = $query->paginate(12);
+        // Check if status is approved
+        if ($dissertation->status !== 'approved') {
+            return back()->with('error', 'This dissertation is not available for download.');
+        }
+
+        // Check if file exists
+        if (!Storage::exists($dissertation->file_path)) {
+            return back()->with('error', 'The file could not be found.');
+        }
         
-        return view('dissertation.index', compact('dissertations'));
+        // Increment download count
+        $dissertation->increment('download_count');
+        
+        // Log the download purpose if submitted
+        if ($request->has('purpose')) {
+            // Log purposes
+            $purposes = $request->input('purpose');
+            
+            // Handle "other" purpose text if provided
+            if (in_array('other', $purposes) && $request->has('other_purpose_text')) {
+                $otherText = $request->input('other_purpose_text');
+                // You might want to log this or save it to a download_logs table
+                \Log::info("Dissertation {$id} downloaded for other purpose: {$otherText}");
+            }
+            
+            // Log all selected purposes
+            \Log::info("Dissertation {$id} downloaded for purposes: " . implode(", ", $purposes));
+        }
+        
+        // Return the file download
+        return Storage::download($dissertation->file_path, $dissertation->title . '.pdf');
     }
 }
